@@ -1,16 +1,21 @@
 from typing import List
 from org.pyengdrom.pydromadaire.lexer.token import Token
 
-
 class ParserCursor:
     COMPILER_CONTINUE_NODE = Token(None)
     COMPILER_ERR_NODE      = Token(None)
+
+    COMPILER_CONTINUE_BUTHADERR_NODE = Token(None)
 
     tok_idx = 0
     saves: List[int] = []
     tokens: List[Token] = []
     arguments: List = []
     args_saves: List[int] = []
+
+    config = None
+    def set_config(self, config):
+        self.config = config
 
     def args(self) -> List:
         if len(self.args_saves) == 0:
@@ -21,15 +26,15 @@ class ParserCursor:
         self.tokens = tokens
 
     def save(self):
-        self.saves.add(self.tok_idx)
-        self.args_saves.add(self.arguments.size())
+        self.saves.append(self.tok_idx)
+        self.args_saves.append(len(self.arguments))
 
     def free(self, found):
         if not found:
             self.restore()
         else:
-            self.saves.removeLast()
-            self.args_saves.removeLast()
+            self.saves.pop()
+            self.args_saves.pop()
 
     def get_cur_token(self):
         return self.tokens[self.tok_idx]
@@ -57,5 +62,5 @@ class ParserCursor:
 
     def restore_arguments(self):
         rst = self.args_saves[-1]
-        while rst < len(self.arguments.size):
+        while rst < len(self.arguments):
             self.arguments.pop()

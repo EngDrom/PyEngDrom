@@ -1,7 +1,4 @@
 from typing import List
-from org.pyengdrom.pydromadaire.lexer.config import NAME
-from org.pyengdrom.pydromadaire.lexer.lexer import Lexer
-from org.pyengdrom.pydromadaire.lexer.config import LBRACKET, LCURLY_BRACKET, LSQUARED_BRACKET, RBRACKET, RCURLY_BRACKET, RSQUARED_BRACKET, DIVIDE, TIMES, VERT_LINE
 
 """
  * Compile a String of character to an expression rule that can be used by the class
@@ -19,27 +16,28 @@ class RuleCompiler:
     tokens = []
     tok_idx = -1
 
-    def compile(self, str):
-        lex = Lexer(str)
+    def compile(self, str, config): # ParserConfig
+        self.config = config
+        lex = Lexer(str, "<std:rulecompiler>")
 
         self.tokens = lex._build()
         self.tok_idx = 0
 
-        return RuleCompiler.self._compile()
+        return self._compile()
 
     def _compile(self):
         rules = []
 
-        while self.tok_idx < self.tokens.size():
+        while self.tok_idx < len(self.tokens):
             if (
                 self.tokens[self.tok_idx].get_type() == RBRACKET
                 or self.tokens[self.tok_idx].get_type() == RSQUARED_BRACKET
             ):
                 break
 
-            rule = self.self.factor(rules)
+            rule = self.factor(rules)
             if rule is not None:
-                rules.add(rule)
+                rules.append(rule)
 
             self.tok_idx += 1
         return ListRule(rules)
@@ -49,7 +47,7 @@ class RuleCompiler:
             self.tokens[self.tok_idx].get_type() == NAME
             and self.tokens[self.tok_idx].get_value() == "EXPR"
         ):
-            return ExpressionRule()
+            return self.config.get_expr_rule()
 
         if self.tokens[self.tok_idx].get_type() == LBRACKET:
             self.tok_idx += 1
@@ -107,3 +105,8 @@ class RuleCompiler:
             return BlockRule()
 
         return None
+
+from org.pyengdrom.pydromadaire.lexer.config import NAME
+from org.pyengdrom.pydromadaire.lexer.lexer import Lexer
+from org.pyengdrom.pydromadaire.lexer.config import LBRACKET, LCURLY_BRACKET, LSQUARED_BRACKET, RBRACKET, RCURLY_BRACKET, RSQUARED_BRACKET, DIVIDE, TIMES, VERT_LINE
+from org.pyengdrom.pydromadaire.parser.grammar.rules import *

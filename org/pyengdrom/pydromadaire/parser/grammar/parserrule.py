@@ -17,8 +17,6 @@
  * /FUNCTION/ /LPAREN/ [/NAME/ (([/COMMA/ /NAME/])*)] /RPAREN/ {}
 """
 
-from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import RuleCompiler
-
 class ParserRule:
     @staticmethod
     def compile(str):
@@ -26,3 +24,5 @@ class ParserRule:
 
     def parse(self, cursor):
         pass
+
+from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import RuleCompiler

@@ -18,7 +18,8 @@ RCURLY_BRACKET    = "RCURLY_BRACKET"
 
 VERT_LINE = "VERT_LINE"
 
-SET    = "SET"
+EOF = "EOF"
+SET = "SET"
 
 TOKEN_TYPES = [
     NUMBER, NAME, PLUS, MINUS, SET, VERT_LINE, DIVIDE, TIMES,
@@ -29,6 +30,7 @@ TOKEN_TYPES = [
     RBRACKET        ,
     RSQUARED_BRACKET,
     RCURLY_BRACKET,
+    EOF,
 ]
 
 START_NAME_STRING = string.ascii_letters + "_"
@@ -44,5 +46,8 @@ OPERAND_TREE = [
     ]),
     Operator("-", MINUS, [
         Operator("=", MINUS + SET, [])
+    ]),
+    Operator("/", DIVIDE,  [
+        Operator("=", DIVIDE + SET, [])
     ]),
 ]
