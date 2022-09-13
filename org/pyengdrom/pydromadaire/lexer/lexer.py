@@ -89,18 +89,18 @@ class Lexer:
         if not self.chr in START_NAME_STRING: return None
 
         _size = 1
-        while self._next(_size) in NAME_STRING: _size += 1
+        while self._next(_size) is not None and self._next(_size) in NAME_STRING: _size += 1
 
         return NAME, _size
     def make_number(self):
         if not self.chr in "0123456789": return None
         
         _size = 1
-        while self._next(_size) in "0123456789": _size += 1
+        while self._next(_size) is not None and self._next(_size) in "0123456789": _size += 1
 
         if self._next(_size) == '.':
             _size += 1
-            while self._next(_size) in "0123456789": _size += 1
+            while self._next(_size) is not None and self._next(_size) in "0123456789": _size += 1
         
         return NUMBER, _size
     def make_operand(self):
@@ -126,6 +126,7 @@ class Lexer:
 
         return token, depth - 1
 
-from org.pyengdrom.pydromadaire.lexer.config import IGNORE_STRING, NAME, NAME_STRING, NUMBER, OPERAND_TREE, START_NAME_STRING
-from org.pyengdrom.pydromadaire.lexer.error import UnknownCharacterException
-from org.pyengdrom.pydromadaire.lexer.token import Token
+from org.pyengdrom.pydromadaire.lexer.config import IGNORE_STRING, NAME, NAME_STRING, NUMBER, START_NAME_STRING
+from org.pyengdrom.pydromadaire.lexer.error  import UnknownCharacterException
+from org.pyengdrom.pydromadaire.lexer.token  import Token
+from org.pyengdrom.pydromadaire.lexer.config import OPERAND_TREE

@@ -16,5 +16,3 @@ class Operator:
         return None
     def get_token(self):
         return self.type
-
-from org.pyengdrom.pydromadaire.lexer.lexer import Lexer
