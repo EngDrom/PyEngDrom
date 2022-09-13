@@ -13,6 +13,7 @@ class ListRule (ParserRule):
         cursor.save()
         
         for sr in self.sub_rules:
+
             n = sr.parse(cursor)
             if (n == cursor.COMPILER_ERR_NODE):
                 cursor.restore()
@@ -24,7 +25,6 @@ class ListRule (ParserRule):
             cursor.free(True)
             cursor.addArgument(data)
             return data
-        
 
         cursor.free(True)
         return cursor.COMPILER_CONTINUE_NODE

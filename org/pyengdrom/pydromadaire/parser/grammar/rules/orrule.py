@@ -7,8 +7,11 @@ class OrRule (ParserRule):
 		self.right = right
 	
 	def parse(self, cursor : ParserCursor):
+		cursor.save()
+
 		n0 = self.left.parse(cursor)
 		if (n0 != cursor.COMPILER_ERR_NODE):
+			cursor.free(True)
 			return n0
 		
 		cursor.restore()

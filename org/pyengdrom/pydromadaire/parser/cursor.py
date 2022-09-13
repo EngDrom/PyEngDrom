@@ -8,9 +8,9 @@ class ParserCursor:
     COMPILER_CONTINUE_BUTHADERR_NODE = Token(None)
 
     tok_idx = 0
-    saves: List[int] = []
-    tokens: List[Token] = []
-    arguments: List = []
+    saves: List[int]      = []
+    tokens: List[Token]   = []
+    arguments: List       = []
     args_saves: List[int] = []
 
     config = None
@@ -24,6 +24,10 @@ class ParserCursor:
 
     def __init__(self, tokens):
         self.tokens = tokens
+        
+        self.saves      = []
+        self.arguments  = [] 
+        self.args_saves = []
 
     def save(self):
         self.saves.append(self.tok_idx)
@@ -32,15 +36,15 @@ class ParserCursor:
     def free(self, found):
         if not found:
             self.restore()
-        else:
+        elif len(self.args_saves) != 0:
             self.saves.pop()
             self.args_saves.pop()
 
     def get_cur_token(self):
-        return self.tokens[self.tok_idx]
+        return self.tokens[self.tok_idx] if self.tok_idx < len(self.tokens) else Token((None, None))
 
     def restore(self):
-        if self.saves.size() == 0:
+        if len(self.saves) == 0:
             self.tok_idx = 0
         else:
             self.tok_idx = self.saves[-1]
@@ -61,6 +65,8 @@ class ParserCursor:
         return len(self.tokens)
 
     def restore_arguments(self):
+        if len(self.args_saves) == 0: return
+
         rst = self.args_saves[-1]
         while rst < len(self.arguments):
             self.arguments.pop()

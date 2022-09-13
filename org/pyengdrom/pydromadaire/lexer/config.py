@@ -47,7 +47,13 @@ OPERAND_TREE = [
     Operator("-", MINUS, [
         Operator("=", MINUS + SET, [])
     ]),
+    Operator("*", TIMES,  [
+        Operator("=", TIMES + SET, [])
+    ]),
     Operator("/", DIVIDE,  [
         Operator("=", DIVIDE + SET, [])
     ]),
+    Operator("|", VERT_LINE,  []),
+    Operator("[", LSQUARED_BRACKET,  []),
+    Operator("]", RSQUARED_BRACKET,  []),
 ]

@@ -14,7 +14,7 @@ class ManyRule(ParserRule):
 		
 		idx = 0
 		while (idx != self.times_max): # != to allow -1 for an infinite amount
-			n = self.parse(cursor)
+			n = self.rule.parse(cursor)
 			
 			if (n != cursor.COMPILER_CONTINUE_NODE):
 				if (self.all_needed):

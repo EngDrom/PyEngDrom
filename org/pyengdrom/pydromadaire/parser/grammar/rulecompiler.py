@@ -53,10 +53,10 @@ class RuleCompiler:
             self.tok_idx += 1
             value = self._compile()
             if (
-                tok_idx < self.tokens.size()
+                self.tok_idx < len(self.tokens)
                 and self.tokens[self.tok_idx].get_type() != RBRACKET
             ):
-                tok_idx -= 1
+                self.tok_idx -= 1
 
             return value
 
@@ -64,17 +64,17 @@ class RuleCompiler:
             self.tok_idx += 1
             value = self._compile()
             if (
-                tok_idx < self.tokens.size()
+                self.tok_idx < len(self.tokens)
                 and self.tokens[self.tok_idx].get_type() != RSQUARED_BRACKET
             ):
-                tok_idx -= 1
+                self.tok_idx -= 1
             return OptionnalRule(value)
 
         if self.tokens[self.tok_idx].get_type() == VERT_LINE:
-            left = rules.get(rules.size() - 1)
+            left = rules[-1]
             self.tok_idx += 1
             right = self.factor(rules)
-            rules.set(rules.size() - 1, OrRule(left, right))
+            rules[-1] = OrRule(left, right)
             return None
 
         if self.tokens[self.tok_idx].get_type() == DIVIDE:
@@ -94,8 +94,10 @@ class RuleCompiler:
             return TokenRule(name, add_val)
 
         if self.tokens[self.tok_idx].get_type() == TIMES:
-            left = rules.get(rules.size() - 1)
-            rules.set(rules.size() - 1, ManyRule(left, -1, False))
+            left = rules[-1]
+            rules[-1] = ManyRule(left, -1, False)
+            
+            return None
 
         if self.tokens[self.tok_idx].get_type() == LCURLY_BRACKET:
             self.tok_idx += 1
