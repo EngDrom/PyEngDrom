@@ -1,8 +1,4 @@
 
-
-from org.pyengdrom.pydromadaire.lexer.error import UnknownCharacterException
-
-
 class Lexer:
     idx      = -1
     advanced = False
@@ -43,6 +39,21 @@ class Lexer:
 
         return None
     
+    def _bundle(self, **kwargs):
+        return {
+            **kwargs,
+            "col"  : self.col,
+            "line" : self.line,
+            "file" : self.file
+        }
+    def _make(self, _built, _type, _size):
+        _built.append( 
+            Token(
+                (_type, self.string[self.idx : self.idx + _size]),
+                **self._bundle(size=_size)
+            )
+        )
+        self._move(_size)
     def _build(self):
         if hasattr(self, "_built"): return self._built
 
@@ -50,8 +61,71 @@ class Lexer:
         self.advance()
 
         while self.advanced:
+            oper_data = self.make_operand()
+            if oper_data is not None:
+                self._make(_built, *oper_data)
+                continue
+            
+            num_data = self.make_number()
+            if num_data is not None:
+                self._make(_built, *num_data)
+                continue
+            
+            name_data = self.make_name()
+            if name_data is not None:
+                self._make(_built, *name_data)
+                continue
+                
+            if self.chr in IGNORE_STRING:
+                self.advance()
+                continue
+
             raise UnknownCharacterException(self.line, self.col, self.file)
 
         self._built = _built
 
         return self._built
+    def make_name  (self):
+        if not self.chr in START_NAME_STRING: return None
+
+        _size = 1
+        while self._next(_size) in NAME_STRING: _size += 1
+
+        return NAME, _size
+    def make_number(self):
+        if not self.chr in "0123456789": return None
+        
+        _size = 1
+        while self._next(_size) in "0123456789": _size += 1
+
+        if self._next(_size) == '.':
+            _size += 1
+            while self._next(_size) in "0123456789": _size += 1
+        
+        return NUMBER, _size
+    def make_operand(self):
+        operand = None
+        depth   = 1
+
+        for child in OPERAND_TREE:
+            if child.is_valid(self, depth):
+                operand = child
+                break
+        
+        if operand is None: return None
+        
+        while True:
+            depth += 1
+            next   = operand.get_next(self, depth)
+            if next is None: break
+
+            operand = next
+        
+        token = operand.get_token()
+        if token is None: return None
+
+        return token, depth - 1
+
+from org.pyengdrom.pydromadaire.lexer.config import IGNORE_STRING, NAME, NAME_STRING, NUMBER, OPERAND_TREE, START_NAME_STRING
+from org.pyengdrom.pydromadaire.lexer.error import UnknownCharacterException
+from org.pyengdrom.pydromadaire.lexer.token import Token

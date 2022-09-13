@@ -6,6 +6,8 @@ from org.pyengdrom.pydromadaire.lexer.type import LE_Token_Data, LE_Type, LE_Val
 class Token:
     _data : LE_Token_Data = None
 
+    def __str__(self):
+        return str(self.get_type()) + ":" + str(self.get_value())
     def __init__(self, data : LE_Token_Data, **kwargs):
         self._data = data
 
