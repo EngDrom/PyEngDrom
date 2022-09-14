@@ -11,6 +11,27 @@ class GetNode(EvaluatorNode):
         return stack[self.name]
     def __str__(self):
         return f"GET:{self.name}"
+    def set(self, stack: "VariableStack", value):
+        stack[self.name] = value
+
+class GetAtNode(EvaluatorNode):
+    def __init__(self, left, expr):
+        self.left = left
+        self.expr = expr
+    def evaluate(self, stack: "VariableStack"):
+        left = self.eval(self.left, stack)
+        expr = self.eval(self.expr, stack)
+
+        return left[expr]
+    def __str__(self):
+        return f"{self.left}.AT({self.expr})"
+    def set(self, stack: "VariableStack", value):
+        left = self.eval(self.left, stack)
+        expr = self.eval(self.expr, stack)
+
+        left[expr] = value
+        return value
+        
 
 class SetNode(EvaluatorNode):
     def __init__(self, name, expr):
@@ -20,7 +41,7 @@ class SetNode(EvaluatorNode):
         value = self.expr
         while isinstance(value, EvaluatorNode): value = value.evaluate(stack)
         
-        stack[self.name] = value
+        self.name.set(stack, value)
         return value
     def __str__(self):
         return f"SET[{self.name}]:{self.expr}"

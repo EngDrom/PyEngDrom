@@ -1,7 +1,7 @@
 
 from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.arraybuilder import ArrayBuilder
-from org.pyengdrom.pydromadaire.evaluate.nodes.attr import GetNode, SetNode
+from org.pyengdrom.pydromadaire.evaluate.nodes.attr import GetAtNode, GetNode, SetNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode
 from org.pyengdrom.pydromadaire.lexer.config import COMMA, LSQUARED_BRACKET, NAME, NUMBER, RSQUARED_BRACKET, SET
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
@@ -52,20 +52,34 @@ class ExpressionRule (ParserRule):
         
         return left
     
-    def factor (self):
+    def factor(self):
+        left = self._factor()
+        if self.cursor.get_cur_token().get_type() == SET:
+            self.cursor.tok_idx += 1
+            right = self.operator_priority(0)
+
+            return SetNode(left, right)
+        else: return left
+    
+    def _factor(self):
+        left = self.factor_term()
+        
+        while self.cursor.get_cur_token().get_type() == LSQUARED_BRACKET:
+            self.cursor.tok_idx += 1
+            index = self.operator_priority(0)
+            if self.cursor.get_cur_token().get_type() != RSQUARED_BRACKET:
+                raise Exception("Expected ] after index [")
+            self.cursor.tok_idx += 1
+            left = GetAtNode(left, index)
+        
+        return left
+    def factor_term (self):
         tok = self.get_cur_token()
         self.cursor.tok_idx += 1
         
         if (tok.get_type() == NUMBER):
             return (float if '.' in tok.get_value() else int)(tok.get_value())
         elif (tok.get_type() == NAME):
-            if (self.cursor.get_cur_token().get_type() == SET):
-                self.cursor.tok_idx += 1
-                return SetNode(
-                    tok.get_value(),
-                    self.operator_priority(0)
-                )
-            
             return GetNode(tok.get_value())
         elif (tok.get_type() == LSQUARED_BRACKET):
             expressions = [  ]

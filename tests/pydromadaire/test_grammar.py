@@ -2,7 +2,7 @@
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
-from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, LBRACKET, LCURLY_BRACKET, MINUS, NAME, NUMBER, PLUS, RBRACKET, RCURLY_BRACKET, SET, TIMES
+from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, LBRACKET, LCURLY_BRACKET, LSQUARED_BRACKET, MINUS, NAME, NUMBER, PLUS, RBRACKET, RCURLY_BRACKET, RSQUARED_BRACKET, SET, TIMES
 from org.pyengdrom.pydromadaire.lexer.token   import Token
 from org.pyengdrom.pydromadaire.parser.config import PyDromConfig
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
@@ -32,6 +32,23 @@ def test_expr_get_node():
     rule.parse(cursor)
     assert str(L[0]) == "((GET:abc DIVIDE 123) MINUS 122)"
 
+def test_expr_get_at_node():
+    tokens = [
+            Token((NAME, "abc")),
+            Token((LSQUARED_BRACKET, "LSQUARED_BRACKET")),
+            Token((NAME, "num")),
+            Token((RSQUARED_BRACKET, "LSQUARED_BRACKET")),
+            Token((DIVIDE, "DIVIDE")),
+            Token((NUMBER, "0123")),
+            Token((MINUS, "MINUS")),
+            Token((NUMBER, "0122")),
+        ]
+    conf, cursor, rule = make_sys(tokens, "EXPR")
+    L = []
+    rule.link( lambda *a : L.extend(a) )
+    rule.parse(cursor)
+    assert str(L[0]) == "((GET:abc.AT(GET:num) DIVIDE 123) MINUS 122)"
+
 def test_expr_set_node():
     tokens = [
             Token((NAME, "bcd")),
@@ -46,7 +63,7 @@ def test_expr_set_node():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "SET[bcd]:((GET:abc DIVIDE 123) MINUS 122)"
+    assert str(L[0]) == "SET[GET:bcd]:((GET:abc DIVIDE 123) MINUS 122)"
 
 def test_if_node():
     compiled : BlockNode = PyDromLangage.compile("if (0) {}", "<stdtest>")
@@ -66,7 +83,7 @@ def test_if_node():
     assert if_node.if_data[0] == 0
     assert isinstance(if_node.if_data[1], BlockNode)
     assert len(if_node.if_data[1].nodes) == 1
-    assert str(if_node.if_data[1].nodes[0]) == "SET[a]:2"
+    assert str(if_node.if_data[1].nodes[0]) == "SET[GET:a]:2"
 
 def test_nested_if_node():
     compiled : BlockNode = PyDromLangage.compile("if (0) {if(1) {a=2}}", "<stdtest>")
@@ -84,7 +101,7 @@ def test_nested_if_node():
     assert if_node.if_data[0] == 1
     assert isinstance(if_node.if_data[1], BlockNode)
     assert len(if_node.if_data[1].nodes) == 1
-    assert str(if_node.if_data[1].nodes[0]) == "SET[a]:2"
+    assert str(if_node.if_data[1].nodes[0]) == "SET[GET:a]:2"
 
 def test_else_node():
     compiled : BlockNode = PyDromLangage.compile("if (0) {} else {}", "<stdtest>")
@@ -102,7 +119,7 @@ def test_else_node():
 
     assert isinstance(if_node.else_data, BlockNode)
     assert len(if_node.else_data.nodes) == 1
-    assert str(if_node.else_data.nodes[0]) == "SET[a]:2"
+    assert str(if_node.else_data.nodes[0]) == "SET[GET:a]:2"
     assert len(if_node.else_if_data) == 0
     assert if_node.if_data[0] == 0
     assert isinstance(if_node.if_data[1], BlockNode)
@@ -120,7 +137,7 @@ def test_else_if_node():
     assert if_node.else_if_data[0] == 0
     assert isinstance(if_node.else_if_data[1], BlockNode)
     assert len(if_node.else_if_data[1].nodes) == 1
-    assert str(if_node.else_if_data[1].nodes[0]) == "SET[a]:2"
+    assert str(if_node.else_if_data[1].nodes[0]) == "SET[GET:a]:2"
     assert if_node.else_if_data[2] == 1
     assert isinstance(if_node.else_if_data[3], BlockNode)
     assert len(if_node.else_if_data[3].nodes) == 0
@@ -135,10 +152,10 @@ def test_while_node():
     assert str(while_node.condition) == "(GET:a PLUS 1)"
     assert isinstance(while_node.blocknode, BlockNode)
     assert len(while_node.blocknode.nodes) == 1
-    assert str(while_node.blocknode.nodes[0]) == "SET[a]:(GET:a PLUS 1)"
+    assert str(while_node.blocknode.nodes[0]) == "SET[GET:a]:(GET:a PLUS 1)"
 
 def test_array_construction():
     compiled : BlockNode = PyDromLangage.compile("a = [0, b + 1]", "<stdtest>")
     array_builder = compiled.nodes[0]
     
-    assert "SET[a]:[ 0, (GET:b PLUS 1) ]" == str(array_builder)
+    assert "SET[GET:a]:[ 0, (GET:b PLUS 1) ]" == str(array_builder)

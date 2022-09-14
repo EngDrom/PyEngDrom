@@ -15,12 +15,28 @@ def test_set():
 
     assert stack["a"] == 1
     assert len(stack.dict.keys()) == 1
+def test_set_at():
+    stack = make_evaluation("a=[1, 2]; a[0] = 2; a[1] = 1")
+
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == [2, 1]
+def test_nested_set_at():
+    stack = make_evaluation("a=[[[1], [2]], [[3], [4]]]; a[0][0][0] = 4; a[0][1][0] = 3; a[1][0][0] = 2; a[1][1][0] = 1")
+
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == [[[4], [3]], [[2], [1]]]
 def test_get():
     stack = make_evaluation("a=1;b=a")
 
     assert stack["a"] == 1
     assert stack["b"] == 1
     assert len(stack.dict.keys()) == 2
+def test_get_at():
+    stack = make_evaluation("a=[1, 2]; b = a[0]; c=a[1]")
+    assert len(stack.dict.keys()) == 3
+    assert stack["a"] == [1, 2]
+    assert stack["b"] == 1
+    assert stack["c"] == 2
 
 def test_operator():
     stack = make_evaluation("a=1+1;b=1-1;c=1*1;d=1/1;e=1*2+1/3-1*5-1/6")
