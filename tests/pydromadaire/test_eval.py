@@ -144,3 +144,14 @@ def test_array_construction():
     assert len(stack.dict.keys()) == 2
     assert stack["a"] == [1, 4]
     assert stack["b"] == 2
+
+
+def test_function_node():
+    stack = make_evaluation("function f() {\na = 0;\n}; f()")
+    assert len(stack.dict.keys()) == 1
+    assert "f" in stack.dict.keys()
+
+    stack = make_evaluation("function f(L, a) {L[0] = a}; a = [0]; f(a, 1)")
+    assert len(stack.dict.keys()) == 2
+    assert "f" in stack.dict.keys()
+    assert stack["a"] == [1]

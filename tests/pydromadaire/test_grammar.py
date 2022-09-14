@@ -1,4 +1,5 @@
 
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.function_node import FunctionBuilderNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
@@ -84,6 +85,21 @@ def test_expr_set_node():
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
     assert str(L[0]) == "SET[GET:bcd]:((GET:abc DIVIDE 123) MINUS 122)"
+
+def test_function_node():
+    compiled : BlockNode = PyDromLangage.compile("function f() {\na = 0;\n}", "<stdtest>")
+    builder  : FunctionBuilderNode = compiled.nodes[0]
+
+    assert builder.name == "f"
+    assert builder.arg_names == ()
+    assert list(map(str, builder.func.nodes)) == ['SET[GET:a]:0']
+    
+    compiled : BlockNode = PyDromLangage.compile("function f(x, y) {\na = 0;\n}", "<stdtest>")
+    builder  : FunctionBuilderNode = compiled.nodes[0]
+
+    assert builder.name == "f"
+    assert builder.arg_names == ("x", "y")
+    assert list(map(str, builder.func.nodes)) == ['SET[GET:a]:0']
 
 def test_if_node():
     compiled : BlockNode = PyDromLangage.compile("if (0) {}", "<stdtest>")

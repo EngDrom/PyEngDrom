@@ -80,7 +80,7 @@ class ExpressionRule (ParserRule):
                 self.cursor.tok_idx += 1
 
                 args = []
-                while True:
+                while self.cursor.get_cur_token().get_type() != RBRACKET:
                     args.append(self.operator_priority(0))
 
                     if self.cursor.get_cur_token().get_type() == COMMA:
@@ -91,6 +91,8 @@ class ExpressionRule (ParserRule):
                         break
 
                     raise Exception("Expected closing bracket or comma")
+
+                if len(args) == 0: self.cursor.tok_idx += 1
 
                 left  = CallFunctionNode(left, args)
                 found = True

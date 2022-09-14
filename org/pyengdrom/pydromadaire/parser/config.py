@@ -1,5 +1,6 @@
 
 from typing import List
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.function_node import FunctionBuilderNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
 from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, MINUS, PLUS, TIMES
@@ -35,6 +36,10 @@ class PyDromConfig:
                 "/NAME=while/ /LBRACKET/ EXPR /RBRACKET/ {}",
                 self
             ).link(WhileNode),
+            compiler.compile(
+                "/NAME=function/ //NAME/ /LBRACKET/ [//NAME/ [/COMMA/ //NAME/]*] /RBRACKET/ {}",
+                self
+            ).link(FunctionBuilderNode),
             ## WARING MUST BE LAST
             compiler.compile("EXPR", self).link(lambda x: x),
         ]
