@@ -136,3 +136,9 @@ def test_while_node():
     assert isinstance(while_node.blocknode, BlockNode)
     assert len(while_node.blocknode.nodes) == 1
     assert str(while_node.blocknode.nodes[0]) == "SET[a]:(GET:a PLUS 1)"
+
+def test_array_construction():
+    compiled : BlockNode = PyDromLangage.compile("a = [0, b + 1]", "<stdtest>")
+    array_builder = compiled.nodes[0]
+    
+    assert "SET[a]:[ 0, (GET:b PLUS 1) ]" == str(array_builder)

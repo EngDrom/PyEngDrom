@@ -1,8 +1,9 @@
 
 from typing import List
+from org.pyengdrom.pydromadaire.evaluate.nodes.arraybuilder import ArrayBuilder
 from org.pyengdrom.pydromadaire.evaluate.nodes.attr import GetNode, SetNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode
-from org.pyengdrom.pydromadaire.lexer.config import NAME, NUMBER, SET
+from org.pyengdrom.pydromadaire.lexer.config import COMMA, LSQUARED_BRACKET, NAME, NUMBER, RSQUARED_BRACKET, SET
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 
@@ -66,5 +67,20 @@ class ExpressionRule (ParserRule):
                 )
             
             return GetNode(tok.get_value())
+        elif (tok.get_type() == LSQUARED_BRACKET):
+            expressions = [  ]
+            while True:
+                expressions.append(self.operator_priority(0))
+                
+                if self.cursor.get_cur_token().get_type() == COMMA:
+                    self.cursor.tok_idx += 1
+                    continue
+                if self.cursor.get_cur_token().get_type() == RSQUARED_BRACKET:
+                    self.cursor.tok_idx += 1
+                    break
+
+                raise Exception("Expected closing squared bracket")
+            
+            return ArrayBuilder(expressions)
         
         raise Exception("Could not find factor for", tok.get_value())

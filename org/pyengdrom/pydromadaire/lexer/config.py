@@ -9,6 +9,8 @@ MINUS  = "MINUS"
 TIMES  = "TIMES"
 DIVIDE = "DIVIDE"
 
+COMMA = "COMMA"
+
 LBRACKET          = "LBRACKET"
 LSQUARED_BRACKET  = "LSQUARED_BRACKET"
 LCURLY_BRACKET    = "LCURLY_BRACKET"
@@ -30,7 +32,7 @@ TOKEN_TYPES = [
     RBRACKET        ,
     RSQUARED_BRACKET,
     RCURLY_BRACKET,
-    EOF,
+    EOF, COMMA
 ]
 
 START_NAME_STRING = string.ascii_letters + "_"
@@ -62,5 +64,6 @@ OPERAND_TREE = [
     Operator("}", RCURLY_BRACKET,  []),
     Operator("\n", EOF, []),
     Operator(";", EOF, []),
+    Operator(",", COMMA, []),
     Operator("=", SET, []),
 ]

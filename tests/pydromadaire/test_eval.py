@@ -96,3 +96,9 @@ def test_while_node():
     assert len(stack.dict.keys()) == 2
     assert stack["a"] == 0
     assert stack["b"] == 3
+
+def test_array_construction():
+    stack = make_evaluation("b = 2; a = [1, b + 2]")
+    assert len(stack.dict.keys()) == 2
+    assert stack["a"] == [1, 4]
+    assert stack["b"] == 2
