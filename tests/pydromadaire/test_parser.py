@@ -17,6 +17,21 @@ def make_sys(tokens, text):
     rulecompiler = RuleCompiler()
     return conf, cursor, rulecompiler.compile(text, conf)
 
+def test_float():
+    tokens = [
+        Token((NUMBER, "0123.12")),
+        Token((PLUS, "PLUS")),
+        Token((NUMBER, "0123"))
+    ]
+    conf, cursor, rule = make_sys(tokens, "EXPR")
+    L = []
+    
+    rule.link( lambda *a : L.extend(a) )
+    rule.parse(cursor)
+
+    assert str(L[0]) == "(123.12 PLUS 123)"
+    assert len(L) == 1
+
 def test_token_rule():
     tokens = [
         Token((NAME, "test")),
@@ -141,7 +156,7 @@ def test_expr():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "124.0"
+    assert str(L[0]) == "124"
 
     tokens = [
             Token((NUMBER, "0124")),
@@ -152,7 +167,7 @@ def test_expr():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "(124.0 PLUS 123.0)"
+    assert str(L[0]) == "(124 PLUS 123)"
     tokens = [
             Token((NUMBER, "0124")),
             Token((PLUS, "PLUS")),
@@ -164,7 +179,7 @@ def test_expr():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "(124.0 PLUS (123.0 TIMES 122.0))"
+    assert str(L[0]) == "(124 PLUS (123 TIMES 122))"
 
     tokens = [
             Token((NUMBER, "0124")),
@@ -177,7 +192,7 @@ def test_expr():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "(124.0 MINUS (123.0 DIVIDE 122.0))"
+    assert str(L[0]) == "(124 MINUS (123 DIVIDE 122))"
 
     tokens = [
             Token((NUMBER, "0124")),
@@ -190,7 +205,7 @@ def test_expr():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "((124.0 DIVIDE 123.0) MINUS 122.0)"
+    assert str(L[0]) == "((124 DIVIDE 123) MINUS 122)"
 
 def test_expr_get_node():
     tokens = [
@@ -204,7 +219,7 @@ def test_expr_get_node():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "((GET:abc DIVIDE 123.0) MINUS 122.0)"
+    assert str(L[0]) == "((GET:abc DIVIDE 123) MINUS 122)"
 
 def test_expr_set_node():
     tokens = [
@@ -220,4 +235,4 @@ def test_expr_set_node():
     L = []
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
-    assert str(L[0]) == "SET[bcd]:((GET:abc DIVIDE 123.0) MINUS 122.0)"
+    assert str(L[0]) == "SET[bcd]:((GET:abc DIVIDE 123) MINUS 122)"

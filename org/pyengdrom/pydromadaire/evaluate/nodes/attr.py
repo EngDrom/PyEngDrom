@@ -20,7 +20,7 @@ class SetNode(EvaluatorNode):
         value = self.expr
         while isinstance(value, EvaluatorNode): value = value.evaluate(stack)
         
-        stack[self.name] = self.expr
+        stack[self.name] = value
         return value
     def __str__(self):
         return f"SET[{self.name}]:{self.expr}"

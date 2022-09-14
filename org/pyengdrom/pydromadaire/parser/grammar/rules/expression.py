@@ -56,7 +56,7 @@ class ExpressionRule (ParserRule):
         self.cursor.tok_idx += 1
         
         if (tok.get_type() == NUMBER):
-            return float(tok.get_value())
+            return (float if '.' in tok.get_value() else int)(tok.get_value())
         elif (tok.get_type() == NAME):
             if (self.cursor.get_cur_token().get_type() == SET):
                 self.cursor.tok_idx += 1

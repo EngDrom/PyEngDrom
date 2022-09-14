@@ -2,7 +2,7 @@
 from typing import List
 from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, MINUS, PLUS, TIMES
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
-from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import RuleCompiler
+from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import BlockRule, RuleCompiler
 from org.pyengdrom.pydromadaire.parser.grammar.rules.expression import ExpressionRule
 
 class ParserConfig:
@@ -23,9 +23,12 @@ class PyDromConfig:
         compiler.config = self
 
         self.rule_list = [
-            compiler.compile("/NAME/ /NUMBER/", self).link(print)
+            compiler.compile("EXPR", self).link(lambda x: x)
         ]
+        self.block_rule = BlockRule()
     def get_expr_rule(self):
         return self.expr_rule
     def get_rule_list(self) -> List[ParserRule]:
         return self.rule_list
+    def get_block_rule(self):
+        return self.block_rule

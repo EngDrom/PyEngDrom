@@ -36,7 +36,7 @@ TOKEN_TYPES = [
 START_NAME_STRING = string.ascii_letters + "_"
 NAME_STRING = START_NAME_STRING + string.digits
 
-IGNORE_STRING = " \t\n\r"
+IGNORE_STRING = " \t\r"
 
 from org.pyengdrom.pydromadaire.lexer.operator import Operator
 
@@ -56,4 +56,7 @@ OPERAND_TREE = [
     Operator("|", VERT_LINE,  []),
     Operator("[", LSQUARED_BRACKET,  []),
     Operator("]", RSQUARED_BRACKET,  []),
+    Operator("\n", EOF, []),
+    Operator(";", EOF, []),
+    Operator("=", SET, []),
 ]

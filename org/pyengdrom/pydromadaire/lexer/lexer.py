@@ -84,6 +84,7 @@ class Lexer:
             raise UnknownCharacterException(self.line, self.col, self.file)
 
         self._built = _built
+        _built.append(Token((EOF, "EOF"), **self._bundle(size=0)))
 
         return self._built
 
@@ -140,6 +141,7 @@ class Lexer:
 
 
 from org.pyengdrom.pydromadaire.lexer.config import (
+    EOF,
     IGNORE_STRING,
     NAME,
     NAME_STRING,
