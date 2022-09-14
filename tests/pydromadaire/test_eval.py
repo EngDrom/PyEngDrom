@@ -3,9 +3,9 @@ from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
 from org.pyengdrom.pydromadaire.evaluate.stack import VariableStack
 from org.pyengdrom.pydromadaire import PyDromLangage
 
-def make_evaluation(text):
+def make_evaluation(text, __global__=None):
     nodes : BlockNode = PyDromLangage.compile(text, "<stdtest>")
-    stack = VariableStack(None)
+    stack = VariableStack(__global__)
     nodes.evaluate(stack)
 
     return stack
@@ -37,6 +37,32 @@ def test_get_at():
     assert stack["a"] == [1, 2]
     assert stack["b"] == 1
     assert stack["c"] == 2
+def test_call():
+    L = []
+    stack = VariableStack(None)
+    stack.__setitem__("func", lambda *a: L.append(a))
+
+    stack = make_evaluation("a=1; func(a, a+1, 2)", stack)
+    
+    assert L == [(1, 2, 2)]
+def test_nested_call():
+    L = []
+    stack = VariableStack()
+    F = lambda *a: (L.append(a), F)[1]
+    stack.__setitem__("func", F)
+
+    stack = make_evaluation("a=1; func(a, a+1, 2)(a, a+2, 3)", stack)
+    
+    assert L == [(1, 2, 2), (1, 3, 3)]
+def test_array_call():
+    L = []
+    stack = VariableStack()
+    F = lambda *a: (L.append(a), [F])[1]
+    stack.__setitem__("func", [0, F])
+
+    stack = make_evaluation("a=1; func[1](a, a+1, 2)[0](a, a+2, 3)", stack)
+    
+    assert L == [(1, 2, 2), (1, 3, 3)]
 
 def test_operator():
     stack = make_evaluation("a=1+1;b=1-1;c=1*1;d=1/1;e=1*2+1/3-1*5-1/6")

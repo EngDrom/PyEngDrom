@@ -1,9 +1,9 @@
 
 from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.arraybuilder import ArrayBuilder
-from org.pyengdrom.pydromadaire.evaluate.nodes.attr import GetAtNode, GetNode, SetNode
+from org.pyengdrom.pydromadaire.evaluate.nodes.attr import CallFunctionNode, GetAtNode, GetNode, SetNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode
-from org.pyengdrom.pydromadaire.lexer.config import COMMA, LSQUARED_BRACKET, NAME, NUMBER, RSQUARED_BRACKET, SET
+from org.pyengdrom.pydromadaire.lexer.config import COMMA, LBRACKET, LSQUARED_BRACKET, NAME, NUMBER, RBRACKET, RSQUARED_BRACKET, SET
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 
@@ -64,13 +64,36 @@ class ExpressionRule (ParserRule):
     def _factor(self):
         left = self.factor_term()
         
-        while self.cursor.get_cur_token().get_type() == LSQUARED_BRACKET:
-            self.cursor.tok_idx += 1
-            index = self.operator_priority(0)
-            if self.cursor.get_cur_token().get_type() != RSQUARED_BRACKET:
-                raise Exception("Expected ] after index [")
-            self.cursor.tok_idx += 1
-            left = GetAtNode(left, index)
+        found = True
+        while found:
+            found = False
+            while self.cursor.get_cur_token().get_type() == LSQUARED_BRACKET:
+                self.cursor.tok_idx += 1
+                index = self.operator_priority(0)
+                if self.cursor.get_cur_token().get_type() != RSQUARED_BRACKET:
+                    raise Exception("Expected ] after index [")
+                self.cursor.tok_idx += 1
+                left = GetAtNode(left, index)
+                found = True
+            
+            while self.cursor.get_cur_token().get_type() == LBRACKET:
+                self.cursor.tok_idx += 1
+
+                args = []
+                while True:
+                    args.append(self.operator_priority(0))
+
+                    if self.cursor.get_cur_token().get_type() == COMMA:
+                        self.cursor.tok_idx += 1
+                        continue
+                    if self.cursor.get_cur_token().get_type() == RBRACKET:
+                        self.cursor.tok_idx += 1
+                        break
+
+                    raise Exception("Expected closing bracket or comma")
+
+                left  = CallFunctionNode(left, args)
+                found = True
         
         return left
     def factor_term (self):
@@ -93,7 +116,7 @@ class ExpressionRule (ParserRule):
                     self.cursor.tok_idx += 1
                     break
 
-                raise Exception("Expected closing squared bracket")
+                raise Exception("Expected closing squared bracket or comma")
             
             return ArrayBuilder(expressions)
         

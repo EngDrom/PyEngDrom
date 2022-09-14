@@ -12,7 +12,7 @@ class VariableStack:
         assert isinstance(idx, str)
 
         if idx in self.dict: return self.dict[idx] # TODO include heap based system
-        if self.__global__ : raise  Exception("Could not find variable", idx)
+        if self.__global__ is None: raise  Exception("Could not find variable", idx)
 
         self.global_vars.add(idx)
         return self.__global__[idx]

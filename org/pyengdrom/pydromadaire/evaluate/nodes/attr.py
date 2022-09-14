@@ -31,7 +31,23 @@ class GetAtNode(EvaluatorNode):
 
         left[expr] = value
         return value
-        
+
+class CallFunctionNode(EvaluatorNode):
+    def __init__(self, left, args):
+        self.left = left
+        self.args = args
+    def __args_str__(self):
+        return ", ".join(map(str, self.args))
+    def __str__(self):
+        args_str = self.__args_str__()
+        return f"{self.left}.CALL({args_str})"
+    def set(self, stack: "VariableStack", value):
+        raise Exception("Cannot set value returned by a function")
+    def evaluate(self, stack: "VariableStack"):
+        function  = self.eval(self.left, stack)
+        arguments = map(lambda u: self.eval(u, stack), self.args)
+
+        return function(*arguments)
 
 class SetNode(EvaluatorNode):
     def __init__(self, name, expr):

@@ -2,7 +2,7 @@
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
-from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, LBRACKET, LCURLY_BRACKET, LSQUARED_BRACKET, MINUS, NAME, NUMBER, PLUS, RBRACKET, RCURLY_BRACKET, RSQUARED_BRACKET, SET, TIMES
+from org.pyengdrom.pydromadaire.lexer.config import COMMA, DIVIDE, LBRACKET, LCURLY_BRACKET, LSQUARED_BRACKET, MINUS, NAME, NUMBER, PLUS, RBRACKET, RCURLY_BRACKET, RSQUARED_BRACKET, SET, TIMES
 from org.pyengdrom.pydromadaire.lexer.token   import Token
 from org.pyengdrom.pydromadaire.parser.config import PyDromConfig
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
@@ -48,6 +48,26 @@ def test_expr_get_at_node():
     rule.link( lambda *a : L.extend(a) )
     rule.parse(cursor)
     assert str(L[0]) == "((GET:abc.AT(GET:num) DIVIDE 123) MINUS 122)"
+def test_call_node():
+    tokens = [
+            Token((NAME, "abc")),
+            Token((LBRACKET, "LBRACKET")),
+            Token((NAME, "num")),
+            Token((COMMA, "COMMA")),
+            Token((NAME, "num2")),
+            Token((PLUS, "PLUS")),
+            Token((NUMBER, "0123")),
+            Token((RBRACKET, "LBRACKET")),
+            Token((DIVIDE, "DIVIDE")),
+            Token((NUMBER, "0123")),
+            Token((MINUS, "MINUS")),
+            Token((NUMBER, "0122")),
+        ]
+    conf, cursor, rule = make_sys(tokens, "EXPR")
+    L = []
+    rule.link( lambda *a : L.extend(a) )
+    rule.parse(cursor)
+    assert str(L[0]) == "((GET:abc.CALL(GET:num, (GET:num2 PLUS 123)) DIVIDE 123) MINUS 122)"
 
 def test_expr_set_node():
     tokens = [
