@@ -22,7 +22,10 @@ class GetAtNode(EvaluatorNode):
         left = self.eval(self.left, stack)
         expr = self.eval(self.expr, stack)
 
-        return left[expr]
+        try:
+            return left[expr]
+        except TypeError:
+            return getattr(left, expr)
     def __str__(self):
         return f"{self.left}.AT({self.expr})"
     def set(self, stack: "VariableStack", value):

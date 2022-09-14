@@ -3,7 +3,7 @@ from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.arraybuilder import ArrayBuilder
 from org.pyengdrom.pydromadaire.evaluate.nodes.attr import CallFunctionNode, GetAtNode, GetNode, SetNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode, UnaryNode
-from org.pyengdrom.pydromadaire.lexer.config import COMMA, LBRACKET, LSQUARED_BRACKET, MINUS, NAME, NOT, NUMBER, RBRACKET, RSQUARED_BRACKET, SET
+from org.pyengdrom.pydromadaire.lexer.config import COMMA, DOT, LBRACKET, LSQUARED_BRACKET, MINUS, NAME, NOT, NUMBER, RBRACKET, RSQUARED_BRACKET, SET, STRING
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 
@@ -67,6 +67,14 @@ class ExpressionRule (ParserRule):
         found = True
         while found:
             found = False
+            while self.cursor.get_cur_token().get_type() == DOT:
+                self.cursor.tok_idx += 1
+                if self.cursor.get_cur_token().get_type() != NAME:
+                    raise Exception("Expected name after '.'")
+                
+                left = GetAtNode(left, self.cursor.get_cur_token().get_value())
+                self.cursor.tok_idx += 1
+
             while self.cursor.get_cur_token().get_type() == LSQUARED_BRACKET:
                 self.cursor.tok_idx += 1
                 index = self.operator_priority(0)
@@ -124,5 +132,7 @@ class ExpressionRule (ParserRule):
                 raise Exception("Expected closing squared bracket or comma")
             
             return ArrayBuilder(expressions)
+        elif tok.get_type() == STRING:
+            return tok.get_value()
         
         raise Exception("Could not find factor for", tok.get_value())

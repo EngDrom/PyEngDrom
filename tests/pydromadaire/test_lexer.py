@@ -1,5 +1,5 @@
 import string
-from org.pyengdrom.pydromadaire.lexer.config import EOF, PLUS, SET, MINUS
+from org.pyengdrom.pydromadaire.lexer.config import EOF, PLUS, SET, MINUS, STRING
 from org.pyengdrom.pydromadaire.lexer.lexer import Lexer
 
 
@@ -70,6 +70,14 @@ def test_name():
     assert len(L) == 3
     assert l.idx == len(string.ascii_letters + "_" + string.digits)
 
+def test_string():
+    l = Lexer("\"abc\\\"\n\''\"", "<stdtest>")
+    L = l._build()
+    
+    assert len(L) == 2
+    assert L[0].get_type() == STRING
+    assert L[0].get_value() == "abc\"\n\''"
+    assert L[1].get_type() == EOF
 
 def test_number():
     l = Lexer(string.digits + " " + string.digits + "." + string.digits, "<stdtest>")

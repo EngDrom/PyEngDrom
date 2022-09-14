@@ -3,6 +3,7 @@ import string
 
 NUMBER = "NUMBER"
 NAME   = "NAME"
+STRING = "STRING"
 
 PLUS   = "PLUS"
 MINUS  = "MINUS"
@@ -32,6 +33,7 @@ XOR = "XOR"
 AND = "AND"
 B_OR = VERT_LINE
 B_AND = "B_AND"
+DOT = "DOT"
 
 TOKEN_TYPES = [
     NUMBER, NAME, PLUS, MINUS, SET, VERT_LINE, DIVIDE, TIMES,
@@ -92,5 +94,9 @@ OPERAND_TREE = [
     Operator("&", B_AND, [
         Operator("&", AND, [])
     ]), 
-    Operator("^", XOR, [])
+    Operator("^", XOR, []),
+    Operator(".", DOT, [])
 ]
+
+ESCAPE_CHARS_EQUIVALENT = ["\\a", "\\b", "\\f", "\\n", "\\r", "\\t", "\\v", "\\'", "\\\"", "\\\\"]
+ESCAPE_CHARS = ["\a", "\b", "\f", "\n", "\r", "\t", "\v", "\'", "\"", "\\"]

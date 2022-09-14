@@ -46,9 +46,12 @@ class Lexer:
         return {**kwargs, "col": self.col, "line": self.line, "file": self.file}
 
     def _make(self, _built, _type, _size):
+        str = self.string[self.idx : self.idx + _size]
+        if _type == STRING: str = self.escape(str)
+
         _built.append(
             Token(
-                (_type, self.string[self.idx : self.idx + _size]),
+                (_type, str),
                 **self._bundle(size=_size)
             )
         )
@@ -76,7 +79,12 @@ class Lexer:
             if name_data is not None:
                 self._make(_built, *name_data)
                 continue
-
+            
+            str_data = self.make_string()
+            if str_data is not None:
+                self._make(_built, *str_data)
+                continue
+            
             if self.chr in IGNORE_STRING:
                 self.advance()
                 continue
@@ -138,15 +146,35 @@ class Lexer:
             return None
 
         return token, depth - 1
+    
+    def escape(self, string: str):
+        U = string[1:-1]
 
+        for a, b in zip(ESCAPE_CHARS, ESCAPE_CHARS_EQUIVALENT):
+            U = U.replace(b, a)
+        
+        return U
+    def make_string(self):
+        if not self.chr in "\"\'": return None
+        end = self.chr
+
+        _size = 1
+        while not self._next(_size) in [end, None]:
+            _size += 1 if self._next(_size) != "\\" else 2
+        _size += 1
+
+        return STRING, _size
 
 from org.pyengdrom.pydromadaire.lexer.config import (
     EOF,
+    ESCAPE_CHARS,
+    ESCAPE_CHARS_EQUIVALENT,
     IGNORE_STRING,
     NAME,
     NAME_STRING,
     NUMBER,
     START_NAME_STRING,
+    STRING,
 )
 from org.pyengdrom.pydromadaire.lexer.error import UnknownCharacterException
 from org.pyengdrom.pydromadaire.lexer.token import Token

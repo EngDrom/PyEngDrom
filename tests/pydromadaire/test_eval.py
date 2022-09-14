@@ -197,3 +197,15 @@ def test_operator():
     assert not stack["q"]
     assert not stack["r"]
     assert stack["s"]
+
+def test_dot():
+    stack = make_evaluation("function f(x, y) {\na = 0;\n}; A = f.arg_names; array = [0, 1]; array.remove(0)")
+    assert len(stack.dict.keys()) == 3
+    assert "f" in stack.dict
+    assert stack.dict["A"] == ("x", "y")
+    assert stack.dict["array"] == [1]
+
+def test_string():
+    stack = make_evaluation("a = \"abc\" + \"00a0\"")
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == "abc00a0"
