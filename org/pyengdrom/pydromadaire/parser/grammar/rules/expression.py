@@ -1,9 +1,11 @@
 
 from typing import List
+from org.pyengdrom.pydromadaire.evaluate.nodes.attr import GetNode, SetNode
+from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode
+from org.pyengdrom.pydromadaire.lexer.config import NAME, NUMBER, SET
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 
-OperatorNode = lambda a,b : None
 
 class ExpressionException(BaseException):
     pass
@@ -21,7 +23,7 @@ class ExpressionRule (ParserRule):
         cursor.save()
         
         try:
-            value = self.addition()
+            value = self.operator_priority(0)
 
             self.cursor = None
             cursor.free(True)
@@ -52,23 +54,17 @@ class ExpressionRule (ParserRule):
     def factor (self):
         tok = self.get_cur_token()
         self.cursor.tok_idx += 1
-        '''
-        if (tok.type == NUMBER):
-            return new IntNode(tok.value)
-        else if (tok.type == TokenType.NAME):
-            if (self.cursor.get_cur_token().type == TokenType.SET):
+        
+        if (tok.get_type() == NUMBER):
+            return float(tok.get_value())
+        elif (tok.get_type() == NAME):
+            if (self.cursor.get_cur_token().get_type() == SET):
                 self.cursor.tok_idx += 1
-                return new SetNode(new Object[]:
-                    tok.value,
-                    self.addition()
+                return SetNode(
+                    tok.get_value(),
+                    self.operator_priority(0)
                 )
             
-
-            return new GetNode(tok.value)
-        '''
+            return GetNode(tok.get_value())
         
-        # raise InnerExpressionException()
-        return None
-    
-
-
+        raise Exception("Could not find factor for", tok.get_value())
