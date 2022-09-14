@@ -1,6 +1,7 @@
 
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
 from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, LBRACKET, LCURLY_BRACKET, MINUS, NAME, NUMBER, PLUS, RBRACKET, RCURLY_BRACKET, SET, TIMES
 from org.pyengdrom.pydromadaire.lexer.token   import Token
 from org.pyengdrom.pydromadaire.parser.config import PyDromConfig
@@ -126,3 +127,12 @@ def test_else_if_node():
 
     assert isinstance(if_node.else_data, BlockNode)
     assert len(if_node.else_data.nodes) == 0
+
+def test_while_node():
+    compiled   : BlockNode = PyDromLangage.compile("while (a + 1) { a = a + 1 }", "<stdtest>")
+    while_node : WhileNode = compiled.nodes[0]
+
+    assert str(while_node.condition) == "(GET:a PLUS 1)"
+    assert isinstance(while_node.blocknode, BlockNode)
+    assert len(while_node.blocknode.nodes) == 1
+    assert str(while_node.blocknode.nodes[0]) == "SET[a]:(GET:a PLUS 1)"

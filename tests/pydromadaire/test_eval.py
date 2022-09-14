@@ -81,3 +81,18 @@ def test_if():
     stack = make_evaluation("if(1) {b = 2} else if(0) {c = 3} else if(1) {d = 4} else {a = 1}")
     assert len(stack.dict.keys()) == 1
     assert stack["b"] == 2
+
+def test_while_node():
+    stack = make_evaluation("a = 0; while (a) {b = 0}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == 0
+
+    stack = make_evaluation("a = 1; while (a) {b = 0; a = 0}")
+    assert len(stack.dict.keys()) == 2
+    assert stack["a"] == 0
+    assert stack["b"] == 0
+
+    stack = make_evaluation("a = 2; b = 1; while (a) {b = b + 1; a = a - 1}")
+    assert len(stack.dict.keys()) == 2
+    assert stack["a"] == 0
+    assert stack["b"] == 3
