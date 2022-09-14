@@ -3,7 +3,7 @@ from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.function_node import FunctionBuilderNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
-from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, MINUS, PLUS, TIMES
+from org.pyengdrom.pydromadaire.lexer.config import AND, B_AND, B_OR, DIVIDE, EQUALS, GREATER, LESS, MINUS, NOT, OR, PLUS, TIMES, XOR
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import BlockRule, RuleCompiler
 from org.pyengdrom.pydromadaire.parser.grammar.rules.expression import ExpressionRule
@@ -19,6 +19,8 @@ class ParserConfig:
 class PyDromConfig:
     def __init__(self):
         self.expr_rule = ExpressionRule([
+            [XOR, OR, AND, B_OR, B_AND],
+            [GREATER, LESS, GREATER + EQUALS, LESS + EQUALS, NOT + EQUALS, EQUALS],
             [PLUS, MINUS],
             [TIMES, DIVIDE]
         ])

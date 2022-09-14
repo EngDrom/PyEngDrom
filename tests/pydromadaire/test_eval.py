@@ -155,3 +155,45 @@ def test_function_node():
     assert len(stack.dict.keys()) == 2
     assert "f" in stack.dict.keys()
     assert stack["a"] == [1]
+
+def test_operator():
+    stack = make_evaluation(
+        "a = 1 + 1;"
+      + "b = 1 - 1;"
+      + "c = 1 * 1;"
+      + "d = 1 / 1;"
+      + "e = 1 ^ 1;"
+      + "f = 1 | 1;"
+      + "g = 1 & 1;"
+      + "h = 1 && 1;"
+      + "i = 1 || 0;"
+      + "j = 1 > 0;"
+      + "k = 1 >= 0;"
+      + "l = 1 >= 1;"
+      + "m = 0 < 1;"
+      + "n = 0 <= 1;"
+      + "o = 1 <= 1;"
+      + "p = 1 == 1;"
+      + "q = 1 != 1;"
+      + "r = 1 == 0;"
+      + "s = 1 != 0"
+    )
+    assert stack["a"] == 2
+    assert stack["b"] == 0
+    assert stack["c"] == 1
+    assert stack["d"] == 1
+    assert stack["e"] == 0
+    assert stack["f"] == 1
+    assert stack["g"] == 1
+    assert stack["h"] == 1
+    assert stack["i"] == 1
+    assert stack["j"]
+    assert stack["k"]
+    assert stack["l"]
+    assert stack["m"]
+    assert stack["n"]
+    assert stack["o"]
+    assert stack["p"]
+    assert not stack["q"]
+    assert not stack["r"]
+    assert stack["s"]

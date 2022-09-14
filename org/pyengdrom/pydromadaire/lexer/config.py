@@ -23,6 +23,16 @@ VERT_LINE = "VERT_LINE"
 EOF = "EOF"
 SET = "SET"
 
+EQUALS = "EQUALS"
+GREATER = "GREATER"
+LESS = "LESS"
+NOT = "NOT"
+OR = "OR"
+XOR = "XOR"
+AND = "AND"
+B_OR = VERT_LINE
+B_AND = "B_AND"
+
 TOKEN_TYPES = [
     NUMBER, NAME, PLUS, MINUS, SET, VERT_LINE, DIVIDE, TIMES,
 
@@ -55,7 +65,9 @@ OPERAND_TREE = [
     Operator("/", DIVIDE,  [
         Operator("=", DIVIDE + SET, [])
     ]),
-    Operator("|", VERT_LINE,  []),
+    Operator("|", VERT_LINE,  [  # B_OR
+        Operator("|", OR, [])
+    ]),
     Operator("[", LSQUARED_BRACKET,  []),
     Operator("]", RSQUARED_BRACKET,  []),
     Operator("(", LBRACKET,  []),
@@ -65,5 +77,20 @@ OPERAND_TREE = [
     Operator("\n", EOF, []),
     Operator(";", EOF, []),
     Operator(",", COMMA, []),
-    Operator("=", SET, []),
+    Operator("=", SET, [
+        Operator("=", EQUALS, [])
+    ]),
+    Operator("<", LESS, [
+        Operator("=", LESS + EQUALS, [])
+    ]),
+    Operator(">", GREATER, [
+        Operator("=", GREATER + EQUALS, [])
+    ]),
+    Operator("!", NOT, [
+        Operator("=", NOT + EQUALS, [])
+    ]), 
+    Operator("&", B_AND, [
+        Operator("&", AND, [])
+    ]), 
+    Operator("^", XOR, [])
 ]

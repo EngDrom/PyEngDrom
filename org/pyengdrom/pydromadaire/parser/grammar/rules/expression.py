@@ -2,8 +2,8 @@
 from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.arraybuilder import ArrayBuilder
 from org.pyengdrom.pydromadaire.evaluate.nodes.attr import CallFunctionNode, GetAtNode, GetNode, SetNode
-from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode
-from org.pyengdrom.pydromadaire.lexer.config import COMMA, LBRACKET, LSQUARED_BRACKET, NAME, NUMBER, RBRACKET, RSQUARED_BRACKET, SET
+from org.pyengdrom.pydromadaire.evaluate.nodes.operator import OperatorNode, UnaryNode
+from org.pyengdrom.pydromadaire.lexer.config import COMMA, LBRACKET, LSQUARED_BRACKET, MINUS, NAME, NOT, NUMBER, RBRACKET, RSQUARED_BRACKET, SET
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 
@@ -101,6 +101,9 @@ class ExpressionRule (ParserRule):
     def factor_term (self):
         tok = self.get_cur_token()
         self.cursor.tok_idx += 1
+
+        if tok.get_type() in [NOT, MINUS]:
+            return UnaryNode(self.factor_term(), tok.get_type())
         
         if (tok.get_type() == NUMBER):
             return (float if '.' in tok.get_value() else int)(tok.get_value())
