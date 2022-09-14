@@ -52,7 +52,7 @@ class BlockRule (ParserRule):
                 return cursor.COMPILER_ERR_NODE
 
         if (bracketBased):
-            if (cursor.get_cur_token().type != RCURLY_BRACKET):
+            if (cursor.get_cur_token().get_type() != RCURLY_BRACKET):
                 cursor.restore()
                 return cursor.COMPILER_ERR_NODE
             

@@ -18,7 +18,7 @@ class VariableStack:
         return self.__global__[idx]
     def __setitem__(self, idx, value):
         assert isinstance(idx, str)
-        print(idx, value)
+
         if idx in self.global_vars:
             self.__global__.__setitem__(idx, value)
         else:

@@ -207,32 +207,29 @@ def test_expr():
     rule.parse(cursor)
     assert str(L[0]) == "((124 DIVIDE 123) MINUS 122)"
 
-def test_expr_get_node():
-    tokens = [
-            Token((NAME, "abc")),
-            Token((DIVIDE, "DIVIDE")),
-            Token((NUMBER, "0123")),
-            Token((MINUS, "MINUS")),
-            Token((NUMBER, "0122")),
+def test_token_with_val():
+    tokens_lists = [
+        [
+            Token((NAME, "if"))
+        ],[
+            Token((NAME, "notif"))
         ]
-    conf, cursor, rule = make_sys(tokens, "EXPR")
-    L = []
-    rule.link( lambda *a : L.extend(a) )
-    rule.parse(cursor)
-    assert str(L[0]) == "((GET:abc DIVIDE 123) MINUS 122)"
-
-def test_expr_set_node():
-    tokens = [
-            Token((NAME, "bcd")),
-            Token((SET, "SET")),
-            Token((NAME, "abc")),
-            Token((DIVIDE, "DIVIDE")),
-            Token((NUMBER, "0123")),
-            Token((MINUS, "MINUS")),
-            Token((NUMBER, "0122")),
-        ]
-    conf, cursor, rule = make_sys(tokens, "EXPR")
-    L = []
-    rule.link( lambda *a : L.extend(a) )
-    rule.parse(cursor)
-    assert str(L[0]) == "SET[bcd]:((GET:abc DIVIDE 123) MINUS 122)"
+    ]
+    for tokens in tokens_lists:
+        conf, cursor, rule = make_sys(tokens, "//NAME=if/")
+        L = []
+        rule.link( lambda *a : L.extend(a) )
+        rule.parse(cursor)
+        assert len(L) == (1 if tokens[0].get_value() == "if" else 0)
+    for tokens in tokens_lists:
+        conf, cursor, rule = make_sys(tokens, f"//NAME={tokens[0].get_value()}/")
+        L = []
+        rule.link( lambda *a : L.extend(a) )
+        rule.parse(cursor)
+        assert len(L) == 1
+    for tokens in tokens_lists:
+        conf, cursor, rule = make_sys(tokens, f"//NAME=a{tokens[0].get_value()}/")
+        L = []
+        rule.link( lambda *a : L.extend(a) )
+        rule.parse(cursor)
+        assert len(L) == 0

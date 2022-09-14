@@ -31,3 +31,53 @@ def test_operator():
     assert stack["d"] == 1
     assert abs(stack["e"] - (-3 + 1/6)) <= 10 ** -6
     assert len(stack.dict.keys()) == 5
+
+def test_if():
+    stack = make_evaluation("if (1) {b = 1}; if(0) {a = 2}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 1
+
+    stack = make_evaluation("if(0) {b = 2} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == 1
+    stack = make_evaluation("if(1) {b = 2} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+
+    stack = make_evaluation("if(0) {b = 2} else if(0) {c = 3} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == 1
+    stack = make_evaluation("if(0) {b = 2} else if(1) {c = 3} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["c"] == 3
+    stack = make_evaluation("if(1) {b = 2} else if(1) {c = 3} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+    stack = make_evaluation("if(1) {b = 2} else if(0) {c = 3} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+
+    stack = make_evaluation("if(0) {b = 2} else if(0) {c = 3} else if(0) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["a"] == 1
+    stack = make_evaluation("if(0) {b = 2} else if(1) {c = 3} else if(0) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["c"] == 3
+    stack = make_evaluation("if(1) {b = 2} else if(1) {c = 3} else if(0) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+    stack = make_evaluation("if(1) {b = 2} else if(0) {c = 3} else if(0) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+    stack = make_evaluation("if(0) {b = 2} else if(0) {c = 3} else if(1) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["d"] == 4
+    stack = make_evaluation("if(0) {b = 2} else if(1) {c = 3} else if(1) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["c"] == 3
+    stack = make_evaluation("if(1) {b = 2} else if(1) {c = 3} else if(1) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2
+    stack = make_evaluation("if(1) {b = 2} else if(0) {c = 3} else if(1) {d = 4} else {a = 1}")
+    assert len(stack.dict.keys()) == 1
+    assert stack["b"] == 2

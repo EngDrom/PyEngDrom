@@ -1,5 +1,6 @@
 
 from typing import List
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
 from org.pyengdrom.pydromadaire.lexer.config import DIVIDE, MINUS, PLUS, TIMES
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
 from org.pyengdrom.pydromadaire.parser.grammar.rulecompiler import BlockRule, RuleCompiler
@@ -23,7 +24,14 @@ class PyDromConfig:
         compiler.config = self
 
         self.rule_list = [
-            compiler.compile("EXPR", self).link(lambda x: x)
+            compiler.compile(
+                     "/NAME=if/ /LBRACKET/ EXPR /RBRACKET/ {}"
+                    +"[/NAME=else/ /NAME=if/ /LBRACKET/ EXPR /RBRACKET/ {}]*"
+                    +"[/NAME=else/ {}]",
+                    self
+                ).link(IfNode),
+            ## WARING MUST BE LAST
+            compiler.compile("EXPR", self).link(lambda x: x),
         ]
         self.block_rule = BlockRule()
     def get_expr_rule(self):

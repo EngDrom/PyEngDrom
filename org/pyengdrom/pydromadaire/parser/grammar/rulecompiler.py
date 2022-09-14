@@ -4,14 +4,6 @@ from typing import List
  * Compile a String of character to an expression rule that can be used by the class
 """
 
-BlockRule = None
-ManyRule = None
-OptionnalRule = None
-ListRule = None
-ExpressionRule = None
-TokenRule = None
-OrRule = None
-
 class RuleCompiler:
     tokens = []
     tok_idx = -1
@@ -84,6 +76,13 @@ class RuleCompiler:
                 self.tok_idx += 1
 
             name = self.tokens[self.tok_idx].get_value()
+            expected_value = None
+            if (
+                self.tok_idx + 2 < len(self.tokens)
+                and self.tokens[self.tok_idx + 1].get_type() == SET
+            ):
+                self.tok_idx += 2
+                expected_value = self.tokens[self.tok_idx].get_value()
 
             if (
                 self.tok_idx + 1 < len(self.tokens)
@@ -91,7 +90,7 @@ class RuleCompiler:
             ):
                 self.tok_idx += 1
 
-            return TokenRule(name, add_val)
+            return TokenRule(name, add_val, expected_value)
 
         if self.tokens[self.tok_idx].get_type() == TIMES:
             left = rules[-1]
