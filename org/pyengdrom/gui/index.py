@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
+
+from core.config import MENU_BAR__TEXT_EDITOR
 class EngdromGUI:
     def __init__(self,argv):
         self.array=[]
@@ -9,34 +11,7 @@ class EngdromGUI:
         # set home folder as foldername
         self.foldername = os.getenv('HOME')
         self.app = QApplication([])
-        # add bar menu with actions on click
-        self.bar = QMenuBar()
-        file = self.bar.addMenu("File")
-        fnew=file.addAction("New")
-        fopen=file.addAction("Open Folder")
-        fsave=file.addAction("Save")
-        fsave_as=file.addAction("Save As")
-        fexit=file.addAction("Exit")
-        #link actions
-        fnew.triggered.connect(self.new)
-        fopen.triggered.connect(self.open_folder)
-        fsave.triggered.connect(self.save)
-        fsave_as.triggered.connect(self.save_as)
-        fexit.triggered.connect(self.exit)
-        edit=self.bar.addMenu("Edit")
-        fundo=edit.addAction("Undo")
-        fredo=edit.addAction("Redo")
-        fcut=edit.addAction("Cut")
-        fcopy=edit.addAction("Copy")
-        fpaste=edit.addAction("Paste")
-        ffind=edit.addAction("Find")
-        # add text editor
-        fundo.triggered.connect(self.undo)
-        fredo.triggered.connect(self.redo)
-        fcut.triggered.connect(self.cut)
-        fcopy.triggered.connect(self.copy)
-        fpaste.triggered.connect(self.paste)
-        ffind.triggered.connect(self.find)
+        
         # add bar with onglets on top
         self.onglets = QTabWidget()
         # add croix to close onglet
@@ -63,8 +38,6 @@ class EngdromGUI:
         self.onglets.addTab(self.text, "Welcome to Engdrom")
         # color onglets in dark
         self.onglets.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
-        #color bar in dark
-        self.bar.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         # add status bar
         self.status = QStatusBar()
         #color status bar in dark
@@ -73,7 +46,10 @@ class EngdromGUI:
         self.window = QMainWindow()
         #set dimensions
         self.window.resize(800,600)
-        self.window.setMenuBar(self.bar)
+
+        MENU_BAR__TEXT_EDITOR.apply(self)
+        MENU_BAR__TEXT_EDITOR._bar.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
+
         # create menu at the left with file explorer
         self.explorer = QTreeView()
         # show files
