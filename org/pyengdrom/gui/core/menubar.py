@@ -15,7 +15,7 @@ class MenuBar:
     def _build(self, config: MenuBarConfig, bar=None):
         if bar is None: bar = QMenuBar()
 
-        for string, next in config:
+        for string, next, *args in config:
             if not isinstance(next, str) and next is not None:
                 menu = bar.addMenu(string)
                 self._build(next, menu)
@@ -24,8 +24,9 @@ class MenuBar:
 
                 if next is not None:
                     action.triggered.connect(getattr(self.element, next))
-                    print(string, getattr(self.element, next))
-        print(bar.actions())
+                if len(args) >= 1:
+                    action.setShortcut(args[0])
+        
         return bar
         
     def apply(self, gui_app):
