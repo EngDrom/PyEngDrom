@@ -4,6 +4,9 @@ from org.pyengdrom.config.config import EngDromConfig
 class ProjectConfig:
     engine_config = EngDromConfig()
 
+    # Default config
+    project__name = "Project (Default)"
+
     to_save_data = {}
 
     def __setattr__(self, __name: str, __value) -> None:
@@ -34,6 +37,7 @@ class ProjectConfig:
 
         for line in lines:
             line = line.strip()
+            if line == "": continue
 
             if line.startswith("[") and line.endswith("]"):
                 context = line[1:-1]

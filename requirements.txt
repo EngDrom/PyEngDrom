@@ -1,0 +1,4 @@
+PyQt5
+PyOpenGL
+PyOpenGL_accelerate
+glfw

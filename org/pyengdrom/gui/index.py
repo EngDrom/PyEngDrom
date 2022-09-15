@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 class EngdromGUI:
     @staticmethod
     def main(argv):
-        app = QApplication.instance()
+        app = QApplication(argv)
         fen = QWidget()
         fen.resize(250, 150)
         fen.move(300, 300)
