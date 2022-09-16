@@ -3,8 +3,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
 
-from core.config import MENU_BAR__TEXT_EDITOR
-from core.tailwind import Tailwind
+from org.pyengdrom.gui.core.config import MENU_BAR__TEXT_EDITOR, ColorPalette
+from org.pyengdrom.gui.core.tailwind import Tailwind
 
 class MainWindow(QMainWindow):
     def addResizeEvent(self, x):
@@ -15,28 +15,40 @@ class MainWindow(QMainWindow):
         for event in self.resizeEvents: event(a0)
 
 class EngdromGUI:
+    def make_text_gui(self):
+        pass
+
     def __init__(self,argv):
         self.array=[]
         self.model=QFileSystemModel()
         # set home folder as foldername
         self.foldername = os.getenv('HOME')
         self.app = QApplication([])
+
+        # add all widgets to main window
+        self.window = MainWindow()
+        #set dimensions
+        self.window.resize(800,600)
+
+        tailwind_object, self.tailwind = Tailwind.use_tailwind(self.window)
+        self.window.addResizeEvent(tailwind_object.apply)
         
         # add bar with onglets on top
         self.onglets = QTabWidget()
         # add croix to close onglet
         self.onglets.setTabsClosable(True)
+        self.onglets.setWidg
         # get onglet that is closed
         self.onglets.tabCloseRequested.connect(self.close_onglet)
         # name onglet with file name
         self.onglets.setTabText(0, "Welcome to Engdrom")
         # create unmodifiable text presentation
+
         self.text=QTextEdit()
         self.text.setReadOnly(True)
-        #self.text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         self.text.setText("Welcome to Engdrom !")
-        #align to the center (horizontal and vertical) text
         self.text.setAlignment(Qt.AlignCenter)
+
         # add padding top of 20%
         #self.text.setStyleSheet(f"padding-top: {int(0.3*self.text.height())}px")
         
@@ -48,23 +60,15 @@ class EngdromGUI:
         self.text.insertHtml("<center><img src='logo.png' width='50' height='50'><br><br><br></center>")
         self.array.append(self.text)
         self.onglets.addTab(self.text, "Welcome to Engdrom")
-        # color onglets in dark
-        self.onglets.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         # add status bar
         self.status = QStatusBar()
         #color status bar in dark
         self.status.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
-        # add all widgets to main window
-        self.window = MainWindow()
-        #set dimensions
-        self.window.resize(800,600)
-
-        tailwind_object, tailwind = Tailwind.use_tailwind(self.window)
-        self.window.addResizeEvent(tailwind_object.apply)
-        tailwind(self.text, f"pt-[30vh]")
+        self.tailwind(self.text, f"pt-[30vh] {ColorPalette.textEditorBackground}")
+        self.tailwind(self.onglets, f"{ColorPalette.textEditorTab} text-gray-300")
 
         MENU_BAR__TEXT_EDITOR.apply(self)
-        MENU_BAR__TEXT_EDITOR._bar.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
+        self.tailwind(MENU_BAR__TEXT_EDITOR._bar, f"{ColorPalette.textEditorTab} text-gray-300")
 
         # create menu at the left with file explorer
         self.explorer = QTreeView()

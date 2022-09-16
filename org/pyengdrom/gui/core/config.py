@@ -1,7 +1,7 @@
 
 
 
-from core.menubar import MenuBar
+from org.pyengdrom.gui.core.menubar import MenuBar
 
 
 MENU_BAR__TEXT_EDITOR = MenuBar(
@@ -27,3 +27,7 @@ MENU_BAR__TEXT_EDITOR = MenuBar(
         ])
     ]
 )
+
+class ColorPalette:
+    textEditorBackground = "bg-neutral-800"
+    textEditorTab        = "bg-neutral-700"

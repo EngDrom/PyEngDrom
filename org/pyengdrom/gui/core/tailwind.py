@@ -40,15 +40,15 @@ class Tailwind:
         if string == "black": return "#000000"
         if string.startswith("[") and string.endswith("]"): return string[1: -1]
 
-        return Tailwind._get_color(*string.split("-", 1))
+        return self._get_color(*string.split("-", 1))
     
     def tailwind_text(self, string):
         string = string.split("-", 1)[1] # text-a-b => a-b
-        return f"color: {Tailwind.get_color(string)};"
+        return f"color: {self.get_color(string)};"
     
     def tailwind_bg(self, string):
         string = string.split("-", 1)[1] # bg-a-b => a-b
-        return f"background-color: {Tailwind.get_color(string)};"
+        return f"background-color: {self.get_color(string)};"
     
     '''Size related'''
 
@@ -67,8 +67,8 @@ class Tailwind:
     def tailwind_border(self, string: str):
         string = string.split("-", 1)[1]
 
-        a = Tailwind.try_run(Tailwind.get_color, string)
-        b = Tailwind.try_run(Tailwind.to_px, string)
+        a = self.try_run(self.get_color, string)
+        b = self.try_run(self.to_px, string)
 
         if a is not None: return f"border-color: {a};"
         return f"border-width: {b};"

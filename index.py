@@ -5,6 +5,6 @@ from org.pyengdrom.gui.index     import EngdromGUI
 import sys
 
 def main():
-    EngdromGUI().main(sys.argv)
+    EngdromGUI(sys.argv).main()
 
 if __name__ == "__main__": main()
