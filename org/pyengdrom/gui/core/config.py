@@ -8,7 +8,7 @@ MENU_BAR__TEXT_EDITOR = MenuBar(
     [
         ("File", [
             ("New",         "new", "Ctrl+N"),
-            ("Open Folder", "open", "Ctrl+O"),
+            ("Open Folder", "open_folder", "Ctrl+O"),
             ( None,         "separator"),
             ("Save", "save", "Ctrl+S"),
             ("Save as", "save_as", "Ctrl+Shift+S"),

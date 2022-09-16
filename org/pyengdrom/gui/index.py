@@ -4,6 +4,16 @@ from PyQt5.QtGui import *
 import os
 
 from core.config import MENU_BAR__TEXT_EDITOR
+from core.tailwind import Tailwind
+
+class MainWindow(QMainWindow):
+    def addResizeEvent(self, x):
+        if not hasattr(self, "resizeEvents"): self.resizeEvents = []
+        self.resizeEvents.append(x)
+    def resizeEvent(self, a0) -> None:
+        if not hasattr(self, "resizeEvents"): self.resizeEvents = []
+        for event in self.resizeEvents: event(a0)
+
 class EngdromGUI:
     def __init__(self,argv):
         self.array=[]
@@ -23,12 +33,14 @@ class EngdromGUI:
         # create unmodifiable text presentation
         self.text=QTextEdit()
         self.text.setReadOnly(True)
-        self.text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
+        #self.text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         self.text.setText("Welcome to Engdrom !")
         #align to the center (horizontal and vertical) text
         self.text.setAlignment(Qt.AlignCenter)
         # add padding top of 20%
-        self.text.setStyleSheet(f"padding-top: {int(0.3*self.text.height())}px")
+        #self.text.setStyleSheet(f"padding-top: {int(0.3*self.text.height())}px")
+        
+        # self.text.setStyleSheet(tailwind("text-white bg-gray-800"))
         #align text horizontally
         self.text.setAlignment(Qt.AlignHCenter)
         # add logo of EngDrom to the text
@@ -43,9 +55,13 @@ class EngdromGUI:
         #color status bar in dark
         self.status.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         # add all widgets to main window
-        self.window = QMainWindow()
+        self.window = MainWindow()
         #set dimensions
         self.window.resize(800,600)
+
+        tailwind_object, tailwind = Tailwind.use_tailwind(self.window)
+        self.window.addResizeEvent(tailwind_object.apply)
+        tailwind(self.text, f"pt-[30vh]")
 
         MENU_BAR__TEXT_EDITOR.apply(self)
         MENU_BAR__TEXT_EDITOR._bar.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
@@ -130,6 +146,8 @@ class EngdromGUI:
         self.status.showMessage("Save file as")
         # open file dialog
         filename = QFileDialog.getSaveFileName(self.window, 'Save file', '/home')
+        if filename[0] == "": return None
+
         # save file
         with open(filename[0], 'w') as f:
             f.write(self.text.toPlainText())
