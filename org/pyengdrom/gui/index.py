@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
+from org.pyengdrom.engine.widget import OpenGLEngine
 
 from org.pyengdrom.gui.core.config import MENU_BAR__TEXT_EDITOR, ColorPalette
 from org.pyengdrom.gui.core.tailwind import Tailwind
@@ -18,11 +19,11 @@ class EngdromGUI:
     def make_text_gui(self):
         pass
 
-    def __init__(self,argv):
+    def __init__(self, args):
         self.array=[]
         self.model=QFileSystemModel()
         # set home folder as foldername
-        self.foldername = os.getenv('HOME')
+        self.foldername = args.folder
         self.app = QApplication([])
 
         # add all widgets to main window
@@ -37,7 +38,6 @@ class EngdromGUI:
         self.onglets = QTabWidget()
         # add croix to close onglet
         self.onglets.setTabsClosable(True)
-        self.onglets.setWidg
         # get onglet that is closed
         self.onglets.tabCloseRequested.connect(self.close_onglet)
         # name onglet with file name
@@ -48,16 +48,17 @@ class EngdromGUI:
         self.text.setReadOnly(True)
         self.text.setText("Welcome to Engdrom !")
         self.text.setAlignment(Qt.AlignCenter)
+        #self.text = OpenGLEngine(args.folder)
 
         # add padding top of 20%
-        #self.text.setStyleSheet(f"padding-top: {int(0.3*self.text.height())}px")
+        #self.text.setStyleselfSheet(f"padding-top: {int(0.3*self.text.height())}px")
         
         # self.text.setStyleSheet(tailwind("text-white bg-gray-800"))
         #align text horizontally
-        self.text.setAlignment(Qt.AlignHCenter)
+        #self.text.setAlignment(Qt.AlignHCenter)
         # add logo of EngDrom to the text
         # add margin of 20%
-        self.text.insertHtml("<center><img src='logo.png' width='50' height='50'><br><br><br></center>")
+        self.text.insertHtml("<center><img src='org/pyengdrom/gui/logo.png' width='50' height='50'><br><br><br></center>")
         self.array.append(self.text)
         self.onglets.addTab(self.text, "Welcome to Engdrom")
         # add status bar
