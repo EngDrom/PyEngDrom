@@ -10,8 +10,10 @@ from org.pyengdrom.gui.gui.titlebar import CustomTitleBar
 class EngDromIW(FramelessWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        
         self.setTitleBar(CustomTitleBar(self, "#041E26"))
         self.titleBar.raise_()
+        self.titleBar.setTitle("Window Manager")
 
 class EngDromInitializer:
     def __init__(self, args):

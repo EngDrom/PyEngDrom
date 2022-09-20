@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QSize
 from qframelesswindow import FramelessWindow, TitleBar
@@ -24,6 +24,8 @@ class CustomTitleBar(TitleBar):
     """ Title bar """
     SIZE = 48
 
+    def setTitle(self, text):
+        self.label.setText(text)
     def __init__(self, parent, color="#000000"):
         # Init
         super().__init__(parent)
@@ -44,12 +46,19 @@ class CustomTitleBar(TitleBar):
         self.realTBar.setFixedHeight(self.SIZE)
         self.tbarLayout = QHBoxLayout(self.realTBar)
         self.tbarLayout.setSpacing(0)
-        self.tbarLayout.setContentsMargins(0, 0, 0, 0)
+        self.tbarLayout.setContentsMargins(10, 0, 0, 0)
         self.tbarLayout.setAlignment(Qt.AlignRight)
+        self.label = QLabel("Project Manager")
+        self.label.setStyleSheet("color: #FFFFFF; font-size: 20px; font-weight: 300;")
+        self.label.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+        self.tbarLayout.addWidget(self.label)
+        self.tbarLayout.addStretch(1)
+
         self.realTBar.layout().addWidget(self.minBtn, 0, Qt.AlignRight)
         self.realTBar.layout().addWidget(self.maxBtn, 0, Qt.AlignRight)
         self.realTBar.layout().addWidget(self.clsBtn, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.realTBar)
+
 
         self.minBtn.clicked.connect(self.window().showMinimized)
         self.maxBtn.clicked.connect(self._TitleBar__toggleMaxState)
