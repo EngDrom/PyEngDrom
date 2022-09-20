@@ -1,4 +1,8 @@
 PyQt5
+PyQt5-Frameless-Window
 PyOpenGL
-PyOpenGL_accelerate
+# Wheel for PyOpenGL_accelerate can't compile for 3.9>
+# Do not use it right now
+# PyOpenGL_accelerate
 PyGLM
+numpy

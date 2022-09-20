@@ -2,3 +2,7 @@
 .pytest_cache
 .vscode
 .test_project
+.venv
+.venv.sh
+demo.py
+test.py
