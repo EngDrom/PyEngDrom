@@ -7,6 +7,7 @@ from qframelesswindow import FramelessWindow
 from PyQt5.QtWidgets import QApplication, QSplitter, QVBoxLayout, QWidget, QLabel, QPushButton, QLineEdit
 from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap
+from org.pyengdrom.config.const import QT_REBOOT
 from org.pyengdrom.engine.utils.project import create_project
 from org.pyengdrom.gui.core.tailwind import Tailwind
 
@@ -88,6 +89,9 @@ class _NewProjectWidget(QWidget):
 
     def createProject(self, template, pname, path):
         create_project(template, pname, path)
+        EngDromInitializer.args.folder = path
+
+        QApplication.exit(QT_REBOOT)
         
 class NewProjectWidget(QSplitter):
     def __init__(self) -> None:
@@ -212,10 +216,12 @@ class EngDromIW(FramelessWindow):
         return super().resizeEvent(e)
 
 class EngDromInitializer:
+    args = None
     def __init__(self, args):
+        EngDromInitializer.args = args
         app = QApplication([])
 
         widget = EngDromIW()
         widget.show()
 
-        app.exec()
+        self.err_code = app.exec()
