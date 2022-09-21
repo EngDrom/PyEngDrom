@@ -31,6 +31,8 @@ COLORS = {
         900: "#03191E",
         800: "#041E26",
         700: "#142E36",
+        600: "#20374B",
+        500: "#294661",
     }
 }
 
@@ -67,7 +69,7 @@ class Tailwind:
     
     def tailwind_bg(self, string):
         string = string.split("-", 1)[1] # bg-a-b => a-b
-        return f"background-color: {self.get_color(string)};"
+        return f"background: {self.get_color(string)};"
     
     '''Size related'''
 
@@ -83,6 +85,9 @@ class Tailwind:
             return f"{int(float(string) * 4)}px"
         raise Exception("Only arg and int authorized")
     
+    def tailwind_rounded(self, string: str):
+        string = string.split("-", 1)[1]
+        return f"border-radius: {self.to_px(string)};"
     def tailwind_h(self, string: str):
         string = string.split("-", 1)[1]
 
@@ -135,6 +140,9 @@ class Tailwind:
         self.data_dict[element] = string
         self._apply(element, string)
     def _apply(self, element, string):
+        _name = type(element).__name__
+        if "@" in string: _name, string = string.split("@", 1)
+        
         self.current_element = element
         attributes = {}
         for word in string.split():
@@ -145,7 +153,7 @@ class Tailwind:
         
         lines = []
         for attr in attributes.keys():
-            name = type(element).__name__
+            name = _name
             if attr != "": name += ":" + attr
             
             lines.append(name + " {")
