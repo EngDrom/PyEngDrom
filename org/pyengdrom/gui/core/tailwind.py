@@ -26,11 +26,23 @@ COLORS = {
     "fuchsia": { 50 : "#FDF4FF",  100 : "#FAE8FF",  200 : "#F5D0FE",  300 : "#F0ABFC",  400 : "#E879F9",  500 : "#D946EF",  600 : "#C026D3",  700 : "#A21CAF",  800 : "#86198F",  900 : "#701A75", },
     "pink":    { 50 : "#FDF2F8",  100 : "#FCE7F3",  200 : "#FBCFE8",  300 : "#F9A8D4",  400 : "#F472B6",  500 : "#EC4899",  600 : "#DB2777",  700 : "#BE185D",  800 : "#9D174D",  900 : "#831843", },
     "rose":    { 50 : "#FFF1F2",  100 : "#FFE4E6",  200 : "#FECDD3",  300 : "#FDA4AF",  400 : "#FB7185",  500 : "#F43F5E",  600 : "#E11D48",  700 : "#BE123C",  800 : "#9F1239",  900 : "#881337", },
+
+    "theme": {
+        900: "#03191E",
+        800: "#041E26",
+        700: "#142E36",
+    }
 }
 
 class Tailwind:
     '''Color related'''
-
+    TAILWIND = None
+    @staticmethod
+    def useGlobalTailwind():
+        if Tailwind.TAILWIND is None:
+            Tailwind.TAILWIND = Tailwind(None)
+        
+        return Tailwind.TAILWIND.make, Tailwind.TAILWIND
     
     def _get_color(self, type, strength):
         return COLORS[type][int(strength)]
@@ -44,7 +56,14 @@ class Tailwind:
     
     def tailwind_text(self, string):
         string = string.split("-", 1)[1] # text-a-b => a-b
-        return f"color: {self.get_color(string)};"
+        if string == "left" : return f"text-align: left;"
+        if string == "right": return f"text-align: right;"
+
+        color = self.try_run(self.get_color, string)
+        fsize = self.try_run(self.to_px, string)
+
+        if fsize is not None: return f"font-size: {fsize};"
+        return f"color: {color};"
     
     def tailwind_bg(self, string):
         string = string.split("-", 1)[1] # bg-a-b => a-b
@@ -64,8 +83,21 @@ class Tailwind:
             return f"{int(float(string) * 4)}px"
         raise Exception("Only arg and int authorized")
     
+    def tailwind_h(self, string: str):
+        string = string.split("-", 1)[1]
+
+        a = self.to_px(string)
+
+        return f"height: {a};"
+    def tailwind_w(self, string: str):
+        string = string.split("-", 1)[1]
+
+        a = self.to_px(string)
+
+        return f"width: {a};"
     def tailwind_border(self, string: str):
         string = string.split("-", 1)[1]
+        if string == "none": return "border: none;"
 
         a = self.try_run(self.get_color, string)
         b = self.try_run(self.to_px, string)
@@ -104,7 +136,27 @@ class Tailwind:
         self._apply(element, string)
     def _apply(self, element, string):
         self.current_element = element
-        element.setStyleSheet(" ".join(map(lambda x: self._make(x), string.split())))
+        attributes = {}
+        for word in string.split():
+            attrs, str = self.generate_attributes(word)
+            aname = ":".join(attrs)
+            if not aname in attributes: attributes[aname] = []
+            attributes[":".join(attrs)].append(self._make(str))
+        
+        lines = []
+        for attr in attributes.keys():
+            name = type(element).__name__
+            if attr != "": name += ":" + attr
+            
+            lines.append(name + " {")
+            for val in attributes[attr]:
+                lines.append("\t" + val)
+            lines.append("}")
+        
+        element.setStyleSheet("\n".join(lines))
+    def generate_attributes(self, string):
+        L = string.split(":")
+        return L[:-1], L[-1]
 
     @staticmethod
     def use_tailwind(window):
@@ -112,7 +164,7 @@ class Tailwind:
         return (object, object.make)
     def __init__(self, window):
         self.window = window
-        self.window.resizeEvent(self.apply)
+        if self.window is not None: self.window.resizeEvent(self.apply)
 
         self.data_dict = {}
     def apply(self, a0=None):

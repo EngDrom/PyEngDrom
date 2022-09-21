@@ -6,6 +6,7 @@ from typing import List, Tuple
 from qframelesswindow import FramelessWindow
 from PyQt5.QtWidgets import QApplication, QSplitter, QVBoxLayout, QWidget, QLabel, QPushButton
 from PyQt5.QtCore import QRect, Qt
+from org.pyengdrom.gui.core.tailwind import Tailwind
 
 from org.pyengdrom.gui.gui.titlebar import CustomTitleBar
 
@@ -13,37 +14,13 @@ class SubWidgetButton(QPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.tw, self.tw_object = Tailwind.useGlobalTailwind()
         self.setupUI()
     def setupUI(self):
-        self.setStyleSheet('''
-        QPushButton {
-            background: #041E26;
-            border: none;
-            height: 72px;
-            color: #CCCCCC;
-            text-align: left;
-            padding-left: 15px;
-            padding-right: 15px;
-            font-size: 18px;
-        }
-        QPushButton:hover {
-            background: #142E36;
-        }
-        ''')
+        self.tw(self, "bg-theme-800 text-white text-[18px] text-left text-gray-200 h-[72px] border-none hover:bg-theme-700 pl-[15px] pr-[15px]")
     def disable(self): self.setupUI()
     def activate(self):
-        self.setStyleSheet('''
-        QPushButton {
-            background: #142E36;
-            border: none;
-            height: 72px;
-            color: #CCCCCC;
-            text-align: left;
-            padding-left: 15px;
-            padding-right: 15px;
-            font-size: 18px;
-        }
-        ''')
+        self.tw(self, "bg-theme-700 text-white text-[18px] text-left text-gray-200 h-[72px] border-none pl-[15px] pr-[15px]")
     def make_click(self, f, i):
         def wrapper():
             f(i)
@@ -86,7 +63,6 @@ class SubWidgetPicker(QWidget):
             __button.clicked.connect(__button.make_click(self.set_current, __idx))
 
         self.innerWidget = SubWidgetButtonContainer(self.__buttons)
-        print(self.__buttons)
         self.__layout.addWidget(self.innerWidget)
     def set_current(self, val : int):
         assert 0 <= val < len(self.choices)
@@ -123,10 +99,6 @@ class EngDromIWidget(QSplitter):
         self.addWidget(self.Z)
         self.setCollapsible(0, False)
         self.Z.set_current(0)
-        print(self.Z.geometry())
-        print(self.Y.geometry())
-        print(self.widget(0))
-        print(self.widget(1))
 
         self.setSizes([300, 500])
 
