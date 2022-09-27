@@ -7,7 +7,7 @@ class WidgetManager(QWidget):
     def __init__(self,args):
         super().__init__()
         self.editor=CodeEditor(args).window
-        self.viewport=ViewPortWidget()
+        self.viewport=ViewPortWidget(args)
         self.tab=QTabWidget()
         self.tab.addTab(self.editor,"Editor")
         self.tab.addTab(self.viewport,"Viewport")

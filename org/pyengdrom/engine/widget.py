@@ -13,7 +13,7 @@ class OpenGLEngine(QOpenGLWidget):
         super().__init__()
         self._timer = QTimer()
         self._timer.timeout.connect(self.update)
-        self._timer.start(1000 / 60)
+        self._timer.start(int(1000 / 60))
         self._project = EngineProject(folder)
     def initializeGL(self) -> None:
         self._context = self.context()
@@ -28,6 +28,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.camera = Camera()
 
         return super().initializeGL()
+
     def paintGL(self) -> None:
         GL.glClearColor(0, 0, 0, 1)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)

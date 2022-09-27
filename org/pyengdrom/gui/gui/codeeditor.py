@@ -29,7 +29,7 @@ class CodeEditor:
         self.foldername = args.folder
 
         # add all widgets to main window
-        self.window = QWidget()
+        self.window = MainWindow()
         #set dimensions
         self.window.resize(800,600)
 
