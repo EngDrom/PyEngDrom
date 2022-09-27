@@ -29,5 +29,5 @@ MENU_BAR__TEXT_EDITOR = MenuBar(
 )
 
 class ColorPalette:
-    textEditorBackground = "bg-neutral-800"
-    textEditorTab        = "bg-neutral-700"
+    textEditorBackground = "bg-theme-800"
+    textEditorTab        = "bg-theme-700"

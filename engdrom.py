@@ -2,7 +2,7 @@
 from org.pyengdrom.config.const import QT_REBOOT
 from org.pyengdrom.config.reader import ProjectConfig
 from org.pyengdrom.gui.enginit import EngDromInitializer
-from org.pyengdrom.gui.index     import EngdromGUI
+from org.pyengdrom.gui.index     import WidgetManagerLauncher
 
 import sys
 
@@ -17,6 +17,6 @@ def main():
         err_code = EngDromInitializer(args).err_code
         if err_code != QT_REBOOT: exit(0)
     
-    EngdromGUI(args)
+    WidgetManagerLauncher(args)
 
 if __name__ == "__main__": main()
