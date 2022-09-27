@@ -112,7 +112,7 @@ class Tailwind:
         return (object, object.make)
     def __init__(self, window):
         self.window = window
-        self.window.resizeEvent(self.apply)
+        self.window.addResizeEvent(self.apply)
 
         self.data_dict = {}
     def apply(self, a0=None):

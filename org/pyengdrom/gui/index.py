@@ -3,17 +3,20 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
 from org.pyengdrom.engine.widget import OpenGLEngine
-
+from qframelesswindow import FramelessWindow
+from org.pyengdrom.gui.gui.titlebar import CustomTitleBar
 from org.pyengdrom.gui.core.config import MENU_BAR__TEXT_EDITOR, ColorPalette
 from org.pyengdrom.gui.core.tailwind import Tailwind
+from org.pyengdrom.gui.gui.texteditor import TextEditor
 
-class MainWindow(QMainWindow):
+class MainWindow(FramelessWindow):
     def addResizeEvent(self, x):
         if not hasattr(self, "resizeEvents"): self.resizeEvents = []
         self.resizeEvents.append(x)
     def resizeEvent(self, a0) -> None:
         if not hasattr(self, "resizeEvents"): self.resizeEvents = []
         for event in self.resizeEvents: event(a0)
+        return FramelessWindow.resizeEvent(self,a0)
 class EngdromGUI:
     def make_text_gui(self):
         pass
@@ -44,10 +47,13 @@ class EngdromGUI:
         self.onglets.setTabText(0, "Welcome to Engdrom")
         # create unmodifiable text presentation
 
-        self.text=QTextEdit()
-        self.text.setReadOnly(True)
-        self.text.setText("Welcome to Engdrom !")
-        self.text.setAlignment(Qt.AlignCenter)
+        self.text=TextEditor("""a=3
+b="salut"
+c=1+1
+print(a+b)""")
+        #self.text.setReadOnly(True)
+        #self.text.setText("Welcome to Engdrom !")
+        #self.text.setAlignment(Qt.AlignCenter)
         #self.text = OpenGLEngine(args.folder)
 
         # add padding top of 20%
@@ -56,20 +62,19 @@ class EngdromGUI:
         #self.text.setAlignment(Qt.AlignHCenter)
         # add logo of EngDrom to the text
         # add margin of 20%
-        self.text.insertHtml("<center><img src='logo.png' width='50' height='50'><br><br><br></center>")
-        self.text.textChanged.connect(self.textchanged)
-        self.text.cursorPositionChanged.connect(self.cursorchanged)
+        #self.text.insertHtml("<center><img src='logo.png' width='50' height='50'><br><br><br></center>")
+        #self.text.textChanged.connect(self.textchanged)
+        #self.text.cursorPositionChanged.connect(self.cursorchanged)
         self.array.append(self.text)
         self.onglets.addTab(self.text, "Welcome to Engdrom")
         # add status bar
         self.status = QStatusBar()
         #color status bar in dark
         self.status.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
-        self.tailwind(self.text, f"pt-[30vh] {ColorPalette.textEditorBackground}")
+        self.tailwind(self.text, f"{ColorPalette.textEditorBackground}")
         self.tailwind(self.onglets, f"{ColorPalette.textEditorTab} text-gray-300")
-
-        MENU_BAR__TEXT_EDITOR.apply(self)
-        self.tailwind(MENU_BAR__TEXT_EDITOR._bar, f"{ColorPalette.textEditorTab} text-gray-300")
+        #MENU_BAR__TEXT_EDITOR.apply(self)
+        #self.tailwind(MENU_BAR__TEXT_EDITOR._bar, f"{ColorPalette.textEditorTab} text-gray-300")
 
         # create menu at the left with file explorer
         self.explorer = QTreeView()
@@ -94,26 +99,28 @@ class EngdromGUI:
         # set proportions
         splitter.setSizes([200, 600])
         # add QSplitter to the main window
-        self.window.setCentralWidget(splitter)
-        # add self.onglet on top of text editor
-        self.window.setStatusBar(self.status)
-        # show window
-        self.window.show()
+        # show windowfrom org.pyengdrom.gui.gui.titlebar import CustomTitleBar
         # add title and logo
-        self.window.setWindowTitle("Engdrom")
+        self.window.setTitleBar(CustomTitleBar(self.window,"#041E26"))
+        self.window.titleBar.raise_()
+        self.window.titleBar.setTitle("Engdrom")
+        self.status.setFixedHeight(20)
+        layout=QVBoxLayout()
+        layout.addWidget(splitter)
+        layout.addWidget(self.status)
+        layout.setContentsMargins(0,self.window.titleBar.SIZE+5,0,0)
+        self.window.setLayout(layout)
+        self.window.show()
         self.app.exec_()
     def new(self):
         # create new onglet
         self.status.showMessage("New file")
         # create new text editor
-        text=QTextEdit()
-        text.setUndoRedoEnabled(True)
+        text=TextEditor("")
         text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         self.array.append(text)
         self.onglets.addTab(text, "New file")
         self.filenames.append(None)
-        self.array[-1].textChanged.connect(self.textchanged)
-        self.array[-1].cursorPositionChanged.connect(self.cursorchanged)
     def open(self):
         # get selected file
         index = self.explorer.selectedIndexes()[0]
@@ -121,16 +128,22 @@ class EngdromGUI:
         # open file
         with open(filename, 'r') as f:
             # create new onglet
-            text=QTextEdit()
-            text.setUndoRedoEnabled(True)
+            try:
+                text=TextEditor(f.read())
+            except UnicodeDecodeError as e:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Error : unsupported format")
+                msg.setWindowTitle("Warning")
+                msg.setStandardButtons(QMessageBox.Cancel)
+                # show messagebox
+                ret = msg.exec_()
+                return
             text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
             self.array.append(text)
             self.onglets.addTab(text, filename)
             self.filenames.append(filename)
             # add file content to text editor
-            text.setText(f.read())
-            self.array[-1].textChanged.connect(self.textchanged)
-            self.array[-1].cursorPositionChanged.connect(self.cursorchanged)
             self.status.showMessage("File opened")
     def open_folder(self):
         # open folder
@@ -237,6 +250,7 @@ class EngdromGUI:
         self.array.pop(index)
         self.filenames.pop(index)
     def textchanged(self):
+        # get cursor position 
         current_index=self.onglets.currentIndex()
         if self.filenames[current_index] is None:
             self.onglets.setTabText(current_index, "New file *")

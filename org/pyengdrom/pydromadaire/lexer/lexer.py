@@ -6,9 +6,11 @@ class Lexer:
     col = 0
     line = 1
 
-    def __init__(self, string, file):
+    def __init__(self, string, file, _raise=True):
+        #print(_raise)
         self.string = string
         self.file = file
+        self._raise=_raise
 
     def advance(self):
         return self._move(1)
@@ -43,7 +45,7 @@ class Lexer:
         return None
 
     def _bundle(self, **kwargs):
-        return {**kwargs, "col": self.col, "line": self.line, "file": self.file}
+        return {**kwargs, "col": self.col, "line": self.line, "file": self.file, "pos": self.idx}
 
     def _make(self, _built, _type, _size):
         str = self.string[self.idx : self.idx + _size]
@@ -88,8 +90,10 @@ class Lexer:
             if self.chr in IGNORE_STRING:
                 self.advance()
                 continue
-
-            raise UnknownCharacterException(self.line, self.col, self.file)
+            #print(self._raise)
+            if self._raise:
+                raise UnknownCharacterException(self.line, self.col, self.file)
+            self.advance()
 
         self._built = _built
         _built.append(Token((EOF, "EOF"), **self._bundle(size=0)))
