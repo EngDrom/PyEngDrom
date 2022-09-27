@@ -37,6 +37,16 @@ class Level:
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
+    def paintBackBuffer(self):
+        for instance in self.instances:
+            instance.paintBackBuffer()
+    def getInstanceByTrace(self, trace):
+        for idx, instance in enumerate(self.instances):
+            print(idx, instance.uniqueColor() - trace)
+            if (abs(instance.uniqueColor() - trace) <= 10 ** -4 * 2).all():
+                return idx
+
+        return -1
     
     @staticmethod
     def read(path, project) -> "Level":

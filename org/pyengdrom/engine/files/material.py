@@ -5,7 +5,48 @@ import enum
 from OpenGL.GL import shaders
 from OpenGL    import GL
 
+BACKBUFFER_VERTEX = '''
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 tCoord;
+
+uniform mat4 mProj;
+uniform mat4 mView;
+uniform mat4 mModel;
+
+uniform vec3 mColor;
+
+out vec3 _mColor;
+void main()
+{
+    gl_Position = mProj * mView * mModel * vec4(aPos, 1.0);
+    _mColor = mColor;
+}
+'''
+BACKBUFFER_FRAGMENT = '''
+#version 330 core
+out vec4 _fragColor;
+in vec3 _mColor;
+void main()
+{
+    _fragColor = vec4(_mColor, 1);
+}
+'''
+
+
 class Material:
+    BACKBUFFER_MATERIAL = None
+    @staticmethod
+    def get_backbuffer_material() -> "Material":
+        if Material.BACKBUFFER_MATERIAL is not None: return Material.BACKBUFFER_MATERIAL
+
+        Material.BACKBUFFER_MATERIAL = Material("")
+        Material.BACKBUFFER_MATERIAL.vert = BACKBUFFER_VERTEX
+        Material.BACKBUFFER_MATERIAL.frag = BACKBUFFER_FRAGMENT
+        Material.BACKBUFFER_MATERIAL.initGL()
+
+        return Material.BACKBUFFER_MATERIAL
+    
     LAST_VERSION = 0
 
     def __init__(self, path):
