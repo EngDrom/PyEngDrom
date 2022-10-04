@@ -9,5 +9,10 @@ class ViewPortWidget(QWidget):
         super().__init__()
 
         self.setLayout(QVBoxLayout())
-        self.layout().addWidget(OpenGLEngine(args.folder))
+        self.engine = OpenGLEngine(args.folder)
+        self.layout().addWidget(self.engine)
+    def keyPressEvent(self, a0) -> None:
+        self.engine.keyPressEvent(a0)
+    def keyReleaseEvent(self, a0) -> None:
+        self.engine.keyReleaseEvent(a0)
     

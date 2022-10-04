@@ -3,23 +3,31 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from org.pyengdrom.gui.gui.codeeditor import CodeEditor
 from org.pyengdrom.gui.gui.viewport import ViewPortWidget
-class WidgetManager(QWidget):
+class WidgetManager(QTabWidget):
     def __init__(self,args):
         super().__init__()
         self.editor=CodeEditor(args).window
         self.viewport=ViewPortWidget(args)
-        self.tab=QTabWidget()
-        self.tab.addTab(self.editor,"Editor")
-        self.tab.addTab(self.viewport,"Viewport")
-        self.tab.setTabPosition(QTabWidget.West)
-        self.tab.setTabShape(QTabWidget.Rounded)
-        self.tab.setMovable(True)
-        self.tab.setTabsClosable(False)
-
+        self.addTab(self.editor,"Editor")
+        self.addTab(self.viewport,"Viewport")
+        self.setTabPosition(QTabWidget.West)
+        self.setTabShape(QTabWidget.Rounded)
+        self.setMovable(True)
+        self.setTabsClosable(False)
+    
+    def eventFilter(self, a0: 'QObject', a1: 'QEvent') -> bool:
+        if a1.type() == a1.Type.KeyPress: return self.keyPressEvent(a1)
+        if a1.type() == a1.Type.KeyRelease: return self.keyReleaseEvent(a1)
+        return super().eventFilter(a0, a1)
+    def keyPressEvent(self, a0) -> None:
+        self.currentWidget().keyPressEvent(a0)
+    def keyReleaseEvent(self, a0) -> None:
+        self.currentWidget().keyReleaseEvent(a0)
 
 class WidgetManagerLauncher:
     def __init__(self,args):
         self.app = QApplication([])
-        self.window = WidgetManager(args).tab
+        #manager  = WidgetManager(args)
+        self.window = ViewPortWidget(args)
         self.window.show()
         self.app.exec_()
