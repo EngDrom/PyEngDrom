@@ -11,6 +11,9 @@ from org.pyengdrom.engine.project import EngineProject
 
 import numpy as np
 import matplotlib.pyplot as plt
+from org.pyengdrom.rice.hitbox.box import CubeHitBox, HitBox
+
+from org.pyengdrom.rice.manager import Manager, Proxy, WorldCollisionManager, run_calculation
 
 class OpenGLEngine(QOpenGLWidget):
     TRANSLATE_SPEED = 5
@@ -31,6 +34,13 @@ class OpenGLEngine(QOpenGLWidget):
     def initializeGL(self) -> None:
         self._context = self.context()
         self._project.level.initGL(self)
+
+        self.world_collision = WorldCollisionManager()
+        self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))
+        self.physics_managers = []
+        for instance in self._project.level.instances:
+            proxy = Proxy(instance, 1000, self.world_collision)
+            self.physics_managers.append(Manager(proxy))
 
         width  = self.width()
         height = self.height()
@@ -54,6 +64,7 @@ class OpenGLEngine(QOpenGLWidget):
         return self._project.level.getInstanceByTrace(self.trace_calculation[y, x])
     def paintGL(self) -> None:
         self.frame_id += 1
+        run_calculation(self.physics_managers, 1 / 60)
         
         controller = self._project.level.camera_controller
         controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)
