@@ -3,6 +3,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 class TextEditor(QTextEdit):
+    def insertFromMimeData(self, source):
+        if source.hasText():
+            self.insertPlainText(source.text())
+            self.init_lexer()
+        else:
+            super().insertFromMimeData(source)
     def __init__(self,text):
         super().__init__()
         self.setAcceptRichText(False)
@@ -67,7 +73,7 @@ class TextEditor(QTextEdit):
             cursor.mergeCharFormat(fmt)
             # set cursor
             self.setTextCursor(cursor)
-        if tokens!=[]:
+        if len(tokens)>1:
             cursor = self.textCursor()
             cursor.setPosition(end)
             self.setTextCursor(cursor)
@@ -81,7 +87,7 @@ class TextEditor(QTextEdit):
         #print(line)
         try:
             tokens=Lexer(text.split("\n")[line],"<engdrom:editor>",_raise=False)._build()
-            print(tokens)
+            #print(tokens)
             cursor = self.textCursor()
             # get position of line begin
             cursor.movePosition(QTextCursor.StartOfLine)
