@@ -12,6 +12,7 @@ script:
 '''
 
 import enum
+from org.pyengdrom.api.controller import CameraController2D
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
@@ -25,6 +26,8 @@ class Level:
         self.materials  = []
         self.instances  = []
         self.scripts    = []
+
+        self.camera_controller = CameraController2D()
     def initGL(self, widget):
         self.widget = widget
         

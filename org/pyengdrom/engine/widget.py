@@ -13,8 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class OpenGLEngine(QOpenGLWidget):
-    TRANSLATE_SPEED = 3
-    ROTATE_SPEED    = 40
+    TRANSLATE_SPEED = 5
+    ROTATE_SPEED    = 10
+
     def __init__(self, folder):
         super().__init__()
         self._timer = QTimer()
@@ -53,14 +54,9 @@ class OpenGLEngine(QOpenGLWidget):
         return self._project.level.getInstanceByTrace(self.trace_calculation[y, x])
     def paintGL(self) -> None:
         self.frame_id += 1
-        X = self.TRANSLATE_SPEED * np.dot(self.move_camera_by_frame, self.camera.get_matrix()[:3, :3])
         
-        if self.frame_id % 60 == 0:
-            print(self.move_camera_by_frame)
-            print(X)
-            print(self.camera.get_matrix()[:3, :3])
-        #if np.linalg.norm(X) > 0.00001: print(X)
-        self.camera.translate(X[0], X[1], X[2])
+        controller = self._project.level.camera_controller
+        controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)
         
         if self.run_trace_calculation:
             GL.glClearColor(0, 0, 0, 1)
@@ -108,9 +104,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.last_point = a0.pos().x(), a0.pos().y()
         
         if self.button == 1: 
-            #self.camera = Camera()
-            #self.camera.rotate(0, 45, 0)
-            self.camera.rotate(self.ROTATE_SPEED * dy / self.height(), self.ROTATE_SPEED * dx / self.width(), 0)
+            self._project.level.camera_controller.rotate(self.camera, [dx / min(self.width(), self.height()), - dy / min(self.width(), self.height())], self.ROTATE_SPEED)
         
         return super().mouseMoveEvent(a0)
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
@@ -118,15 +112,15 @@ class OpenGLEngine(QOpenGLWidget):
         self.button  = -1
         return super().mouseReleaseEvent(a0)
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
-        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[2] += 0.01
-        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[2] -= 0.01
+        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[1] -= 0.01
+        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[1] += 0.01
         if a0.key() == Qt.Key.Key_Left:  self.move_camera_by_frame[0] += 0.01
         if a0.key() == Qt.Key.Key_Right: self.move_camera_by_frame[0] -= 0.01
 
         return super().keyPressEvent(a0)
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
-        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[2] -= 0.01
-        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[2] += 0.01
+        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[1] += 0.01
+        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[1] -= 0.01
         if a0.key() == Qt.Key.Key_Left:  self.move_camera_by_frame[0] -= 0.01
         if a0.key() == Qt.Key.Key_Right: self.move_camera_by_frame[0] += 0.01
 
