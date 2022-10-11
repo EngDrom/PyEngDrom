@@ -68,6 +68,7 @@ class OpenGLEngine(QOpenGLWidget):
         
         controller = self._project.level.camera_controller
         controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)
+        controller.frame(self.camera)
         
         if self.run_trace_calculation:
             GL.glClearColor(0, 0, 0, 1)

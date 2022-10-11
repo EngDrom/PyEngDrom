@@ -1,4 +1,5 @@
 
+from re import X
 import numpy as np
 import glm
 import inspect
@@ -8,8 +9,16 @@ class MatrixMaintainer:
     def __init__(self):
         self.mat = glm.mat4()
         self.rot_mat = glm.mat4()
+
+        self.x = 0
+        self.y = 0
+        self.z = 0
     def translate(self, x, y, z):
+        self.x += x; self.y += y; self.z += z
+
         self.mat = glm.translate(self.mat, (x, y, z))
+    def reset_translation(self):
+        self.translate(-self.x, -self.y, -self.z)
     def translateLocal(self, x, y, z):
         pass # TODO transform translation vector to local rotated system and then apply
     def rotate(self, rx, ry, rz):

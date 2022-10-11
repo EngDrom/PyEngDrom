@@ -99,3 +99,7 @@ class MeshInstance:
         
         self._hitbox = CubeHitBox(a, b)
         return self._hitbox
+    def get_position(self):
+        matrix = self.matrix.get_matrix()
+
+        return matrix[3, :3]

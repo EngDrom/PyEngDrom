@@ -12,7 +12,7 @@ script:
 '''
 
 import enum
-from org.pyengdrom.api.controller import CameraController2D
+from org.pyengdrom.api.controller import AttachedCameraController2D, CameraController2D
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
@@ -37,6 +37,7 @@ class Level:
             material.initGL()
         for instance in self.instances:
             instance.initGL(self.mesh_types, self.materials)
+        self.camera_controller = AttachedCameraController2D(self.instances[0])
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
