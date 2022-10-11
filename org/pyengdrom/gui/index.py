@@ -6,6 +6,21 @@ from org.pyengdrom.gui.gui.viewport import ViewPortWidget
 from qframelesswindow import FramelessWindow
 from org.pyengdrom.gui.gui.titlebar import CustomTitleBar
 from org.pyengdrom.gui.gui.menubar import CustomMenuBar
+
+
+class WidgetManager(QTabWidget):
+    def __init__(self,args):
+        super().__init__()
+        self.editor=CodeEditor(args).window
+        self.viewport=ViewPortWidget(args)
+        self.addTab(self.editor,"Editor")
+        self.addTab(self.viewport,"Viewport")
+        self.setTabPosition(QTabWidget.West)
+        self.setTabShape(QTabWidget.Rounded)
+        self.setMovable(True)
+        self.setTabsClosable(False)
+    
+  
 class WidgetManager(QWidget):
     def __init__(self,args,parent):
         super().__init__()
@@ -30,7 +45,14 @@ class WidgetManager(QWidget):
         self.tab.setStyleSheet("QTabWidget::pane { border: 0; }");
         # remove all margins
         self.tab.setContentsMargins(0,0,0,0)
-
+    def eventFilter(self, a0: 'QObject', a1: 'QEvent') -> bool:
+        if a1.type() == a1.Type.KeyPress: return self.keyPressEvent(a1)
+        if a1.type() == a1.Type.KeyRelease: return self.keyReleaseEvent(a1)
+        return super().eventFilter(a0, a1)
+    def keyPressEvent(self, a0) -> None:
+        self.currentWidget().keyPressEvent(a0)
+    def keyReleaseEvent(self, a0) -> None:
+        self.currentWidget().keyReleaseEvent(a0)
 class MainWindow(FramelessWindow):
     def __init__(self,args):
         super().__init__()

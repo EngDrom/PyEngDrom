@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from org.pyengdrom.engine.widget import OpenGLEngine
 import os
+
 class Listing(QListView):
     def __init__(self,content):
         super().__init__()
@@ -110,13 +111,13 @@ class ViewPortWidget(QSplitter):
         # create vertical layout
         self.hsplitter=QSplitter(Qt.Horizontal)
         # create viewport
-        self.viewport=OpenGLEngine(self.path)
+        self.engine=OpenGLEngine(self.path)
         # create child list
         self.childlist=ChildList(["Test","Test"])
         self.listing=Listing(["Test","Coucou"])
         # add widgets to hspliter
         self.hsplitter.addWidget(self.childlist)
-        self.hsplitter.addWidget(self.viewport)
+        self.hsplitter.addWidget(self.engine)
         self.hsplitter.setCollapsible(1,False)
         # set proportions to 30%/70%
         self.hsplitter.setSizes([300,700])
@@ -133,3 +134,11 @@ class ViewPortWidget(QSplitter):
         self.setCollapsible(0,False)
         # set proportions to 70% / 30%
         self.setSizes([700,300])
+    def eventFilter(self, a0: 'QObject', a1: 'QEvent') -> bool:
+        if a1.type() == a1.Type.KeyPress: return self.keyPressEvent(a1)
+        if a1.type() == a1.Type.KeyRelease: return self.keyReleaseEvent(a1)
+        return super().eventFilter(a0, a1)
+    def keyPressEvent(self, a0) -> None:
+        self.currentWidget().keyPressEvent(a0)
+    def keyReleaseEvent(self, a0) -> None:
+        self.currentWidget().keyReleaseEvent(a0)

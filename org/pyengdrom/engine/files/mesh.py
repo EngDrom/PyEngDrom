@@ -84,6 +84,10 @@ class Mesh:
         location = glGetUniformLocation(self.main_shader, location)
 
         glUniformMatrix4fv(location, 1, GL_FALSE, matrix)
+    def setVec3(self, vec3, location):
+        location = glGetUniformLocation(self.main_shader, location)
+
+        glUniform3f(location, vec3[0], vec3[1], vec3[2])
     def paintGL(self, shader, mModel):
         # Init shader and uniform matrices
         self.main_shader = shader.main_shader

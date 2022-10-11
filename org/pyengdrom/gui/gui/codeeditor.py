@@ -32,8 +32,6 @@ class CodeEditor(QWidget):
         ret = msg.exec_()
     def make_text_gui(self):
         pass
-    def test(self):
-        print("coucou")
     def new(self):
         # create new onglet
         self.status.showMessage("New file")
