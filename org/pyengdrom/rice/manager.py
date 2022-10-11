@@ -23,6 +23,8 @@ class Proxy:
         if self.manager.collides(box):
             self.mesh.move(-x, -y, -z)
             self.move_bijection(x, y, z)
+            return True
+        return False
     def move_bijection(self, x, y, z):
         a = 0
         b = 1
@@ -61,7 +63,8 @@ class Manager:
         self.forces.clear()
 
         self.speed += dv
-        self.proxy.move(*(self.speed * delta_t))
+        if self.proxy.move(*(self.speed * delta_t)):
+            self.speed[::] = 0.0
 
 class WorldCollisionManager:
     def __init__(self):

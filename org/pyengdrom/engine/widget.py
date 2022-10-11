@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from OpenGL import GL, GLU
 from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
+from org.pyengdrom.api.controller import AttachedCameraController2D
 from org.pyengdrom.engine.camera import Camera
 
 from org.pyengdrom.engine.project import EngineProject
@@ -41,6 +42,8 @@ class OpenGLEngine(QOpenGLWidget):
         for instance in self._project.level.instances:
             proxy = Proxy(instance, 1000, self.world_collision)
             self.physics_managers.append(Manager(proxy))
+
+        self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[0], self.physics_managers[0].proxy)
 
         width  = self.width()
         height = self.height()

@@ -16,6 +16,7 @@ from org.pyengdrom.api.controller import AttachedCameraController2D, CameraContr
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
+from org.pyengdrom.rice.manager import Proxy
 
 class Level:
     LAST_VERSION = "0"
@@ -37,7 +38,7 @@ class Level:
             material.initGL()
         for instance in self.instances:
             instance.initGL(self.mesh_types, self.materials)
-        self.camera_controller = AttachedCameraController2D(self.instances[0])
+        self.camera_controller = None
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
