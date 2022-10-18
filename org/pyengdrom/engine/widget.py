@@ -7,6 +7,7 @@ from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
 from org.pyengdrom.api.controller import AttachedCameraController2D
 from org.pyengdrom.engine.camera import Camera
+from org.pyengdrom.engine.files.texture import Texture
 
 from org.pyengdrom.engine.project import EngineProject
 
@@ -17,7 +18,7 @@ from org.pyengdrom.rice.hitbox.box import CubeHitBox, HitBox
 from org.pyengdrom.rice.manager import Manager, Proxy, WorldCollisionManager, run_calculation
 
 class OpenGLEngine(QOpenGLWidget):
-    TRANSLATE_SPEED = 5
+    TRANSLATE_SPEED = 10
     ROTATE_SPEED    = 10
 
     def __init__(self, folder):
@@ -31,10 +32,19 @@ class OpenGLEngine(QOpenGLWidget):
         self.pressed = False
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
+
+        # Temporary
+        self._texture = Texture("./assets/demo/platformer/art_sheet.png")
         
     def initializeGL(self) -> None:
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+        GL.glEnable(GL.GL_BLEND)
+
         self._context = self.context()
         self._project.level.initGL(self)
+        self._texture.initGL()
+        for instance in self._project.level.instances:
+            instance._gl_mesh._texture = self._texture
 
         self.world_collision = WorldCollisionManager()
         self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))

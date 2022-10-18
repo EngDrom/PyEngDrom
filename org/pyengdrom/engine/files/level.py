@@ -13,9 +13,11 @@ script:
 
 import enum
 from org.pyengdrom.api.controller import AttachedCameraController2D, CameraController2D
+from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
+from org.pyengdrom.engine.files.texture import AtlasTexture
 from org.pyengdrom.rice.manager import Proxy
 
 class Level:
@@ -31,6 +33,8 @@ class Level:
         self.camera_controller = CameraController2D()
     def initGL(self, widget):
         self.widget = widget
+
+        self.mesh_types.append(Grid(AtlasTexture("./assets/demo/platformer/art_sheet.png", "./.test_project/atlas.atl")).meshes[0])
         
         for mesh in self.mesh_types:
             mesh.initGL(widget)
@@ -38,7 +42,7 @@ class Level:
             material.initGL()
         for instance in self.instances:
             instance.initGL(self.mesh_types, self.materials)
-        self.camera_controller = None
+        self.camera_controller = CameraController2D()
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()

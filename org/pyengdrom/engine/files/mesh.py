@@ -34,6 +34,8 @@ class Mesh:
 
         self.indices = []
         self.args    = args
+
+        self._texture = None
     def initGL(self, widget):
         self.widget = widget
 
@@ -95,6 +97,9 @@ class Mesh:
         self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
         self.setMatrix(self.widget.camera.get_matrix(),    "mView")
         self.setMatrix(mModel,                             "mModel")
+
+        if self._texture is not None:
+            glBindTexture(GL_TEXTURE_2D, self._texture._gl_text)
 
         # Init VAO and VBOs
         glBindVertexArray(self._gl_vao)
