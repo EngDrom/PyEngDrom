@@ -10,11 +10,15 @@ class Weight(Force):
         super().__init__(0, - 9.81 * mass, 0)
 
 
+MOVEMODE_Component = 1
+MOVEMODE_Bijection = 2
+
 class Proxy:
-    def __init__(self, mesh, mass, manager : "WorldCollisionManager"):
+    def __init__(self, mesh, mass, move_mode, manager : "WorldCollisionManager"):
         self.mesh = mesh
         self._mass = mass
         self.manager = manager
+        self.move_mode = move_mode
 
     def move(self, x, y, z):
         self.mesh.move(x, y, z)
@@ -22,7 +26,13 @@ class Proxy:
 
         if self.manager.collides(box):
             self.mesh.move(-x, -y, -z)
-            self.move_bijection(x, y, z)
+            if MOVEMODE_Component & self.move_mode != 0 \
+                and not (x == y == 0 or x == z == 0 or y == z == 0):
+                self.move(x, 0, 0)
+                self.move(0, y, 0)
+                self.move(0, 0, z)
+            elif MOVEMODE_Bijection & self.move_mode != 0:
+                self.move_bijection(x, y, z)
             return True
         return False
     def move_bijection(self, x, y, z):

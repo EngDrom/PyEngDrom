@@ -6,10 +6,11 @@ from org.pyengdrom.rice.hitbox.box import CubeHitBox
 from org.pyengdrom.rice.manager import WorldCollisionManager
 
 class GridChunk(Mesh):
-    def __init__(self, _map, atlas):
+    def __init__(self, _map, delta, atlas):
         super().__init__("<grid>")
 
         self._map = np.flip(np.rot90( np.array(_map) ))
+        ndx, ndy = delta
 
         self.vao  = [ 3, 2 ]
         self.vbos = [ [], [] ]
@@ -20,7 +21,7 @@ class GridChunk(Mesh):
                 if self._map[dx][dy] == -1: continue
 
                 u = len(self.indices) // 6 * 4
-                self.vbos[0].extend([dx, dy, 0, dx + 1, dy, 0, dx + 1, dy + 1, 0, dx, dy + 1, 0])
+                self.vbos[0].extend([ndx + dx, ndy + dy, 0, ndx + dx + 1, ndy + dy, 0, ndx + dx + 1, ndy + dy + 1, 0, ndx + dx, ndy + dy + 1, 0])
                 for v in atlas.coordinates(self._map[dx][dy]): 
                     self.vbos[1].extend(v)
 
@@ -61,18 +62,22 @@ class Grid:
                 grid  = Grid(atlas)
             elif line.startswith("layer-") and line[-1] == ":":
                 state = int(line[6:-1])
+                while state >= len(grid.meshes):
+                    grid.meshes.append([[], [0, 0]])
             elif line.startswith("collider:"):
                 state = -2
+            elif line.startswith("dx: ") and state >= 0:
+                grid.meshes[state][1][0] = int(line[4:])
+            elif line.startswith("dy: ") and state >= 0:
+                grid.meshes[state][1][1] = int(line[4:])
             else:
                 if state >= 0:
-                    while state >= len(grid.meshes):
-                        grid.meshes.append([])
-                    grid.meshes[state].append(list(map(int, line.split(" "))))
+                    grid.meshes[state][0].append(list(map(int, line.split(" "))))
                 elif state == -2:
                     colliders.append(int(line))
 
         for idx in range(len(grid.meshes)):
-            grid.meshes [idx] = GridChunk(grid.meshes[idx], atlas)
+            grid.meshes [idx] = GridChunk(grid.meshes[idx][0], grid.meshes[idx][1], atlas)
         grid.colliders = colliders
         return grid
 

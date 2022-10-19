@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from org.pyengdrom.rice.hitbox.box import CubeHitBox, HitBox
 
-from org.pyengdrom.rice.manager import Manager, Proxy, WorldCollisionManager, run_calculation
+from org.pyengdrom.rice.manager import MOVEMODE_Bijection, MOVEMODE_Component, Manager, Proxy, WorldCollisionManager, run_calculation
 
 class OpenGLEngine(QOpenGLWidget):
     TRANSLATE_SPEED = 10
@@ -44,7 +44,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))
         self.physics_managers = []
         for instance in self._project.level.instances[0:1]:
-            proxy = Proxy(instance, 1000, self.world_collision)
+            proxy = Proxy(instance, 1000, MOVEMODE_Component | MOVEMODE_Bijection, self.world_collision)
             self.physics_managers.append(Manager(proxy))
 
         self._context = self.context()
