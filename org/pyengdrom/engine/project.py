@@ -20,6 +20,8 @@ class EngineProject:
         self._config = ProjectConfig.read(self._conf_path)
         self._config.save(self._conf_path)
         self.load_level(self._config.project__default_level)
+    def build_path(self, path):
+        return os.path.join(self.folder, path)
     def load_level(self, path):
         level_path = os.path.join(self.folder, path)
 

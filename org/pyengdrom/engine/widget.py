@@ -43,7 +43,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.world_collision = WorldCollisionManager()
         self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))
         self.physics_managers = []
-        for instance in self._project.level.instances[0:1]:
+        for instance in self._project.level.instances[2:3]:
             proxy = Proxy(instance, 1000, MOVEMODE_Component | MOVEMODE_Bijection, self.world_collision)
             self.physics_managers.append(Manager(proxy))
 
@@ -52,8 +52,8 @@ class OpenGLEngine(QOpenGLWidget):
         self._texture.initGL()
         for instance in self._project.level.instances:
             instance._gl_mesh._texture = self._texture
-
-        self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[0], self.physics_managers[0].proxy)
+        print(self._project.level.instances)
+        self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[2], self.physics_managers[0].proxy)
 
         width  = self.width()
         height = self.height()

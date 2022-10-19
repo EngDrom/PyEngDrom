@@ -46,9 +46,9 @@ class Grid:
     @staticmethod
     def from_path(path, project, *args):
         with open(path, 'r') as f:
-            return Grid.from_string(f.read())
+            return Grid.from_string(project, f.read())
     @staticmethod
-    def from_string(string):
+    def from_string(project, string):
         lines = string.split("\n")
         state = -1
         atlas = None
@@ -58,7 +58,7 @@ class Grid:
         for line in lines:
             if line.startswith("atlas: "):
                 _, img, atlas_file = line.split(" ")
-                atlas = AtlasTexture(img, atlas_file)
+                atlas = AtlasTexture(project.build_path(img), project.build_path(atlas_file))
                 grid  = Grid(atlas)
             elif line.startswith("layer-") and line[-1] == ":":
                 state = int(line[6:-1])
