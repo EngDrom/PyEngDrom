@@ -36,7 +36,7 @@ class Mesh:
         self.args    = args
 
         self._texture = None
-    def initGL(self, widget):
+    def initGL(self, widget, __world_collision):
         self.widget = widget
 
         self._gl_vbos = []
@@ -84,6 +84,7 @@ class Mesh:
 
     def setMatrix(self, matrix, location):
         location = glGetUniformLocation(self.main_shader, location)
+        glUseProgram(self.main_shader)
 
         glUniformMatrix4fv(location, 1, GL_FALSE, matrix)
     def setVec3(self, vec3, location):

@@ -31,13 +31,11 @@ class Level:
         self.scripts    = []
 
         self.camera_controller = CameraController2D()
-    def initGL(self, widget):
+    def initGL(self, widget, world_collision):
         self.widget = widget
-
-        self.mesh_types.append(Grid(AtlasTexture("./assets/demo/platformer/art_sheet.png", "./.test_project/atlas.atl")).meshes[0])
         
         for mesh in self.mesh_types:
-            mesh.initGL(widget)
+            mesh.initGL(widget, world_collision)
         for material in self.materials:
             material.initGL()
         for instance in self.instances:

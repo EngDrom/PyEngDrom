@@ -40,18 +40,18 @@ class OpenGLEngine(QOpenGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glEnable(GL.GL_BLEND)
 
-        self._context = self.context()
-        self._project.level.initGL(self)
-        self._texture.initGL()
-        for instance in self._project.level.instances:
-            instance._gl_mesh._texture = self._texture
-
         self.world_collision = WorldCollisionManager()
         self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))
         self.physics_managers = []
-        for instance in self._project.level.instances:
+        for instance in self._project.level.instances[0:1]:
             proxy = Proxy(instance, 1000, self.world_collision)
             self.physics_managers.append(Manager(proxy))
+
+        self._context = self.context()
+        self._project.level.initGL(self, self.world_collision)
+        self._texture.initGL()
+        for instance in self._project.level.instances:
+            instance._gl_mesh._texture = self._texture
 
         self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[0], self.physics_managers[0].proxy)
 
