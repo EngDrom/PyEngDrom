@@ -2,6 +2,7 @@
 import os
 
 from org.pyengdrom.config.reader import ProjectConfig
+from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.level import Level
 from org.pyengdrom.engine.files.material import Material
 from org.pyengdrom.engine.files.mesh import Mesh
@@ -19,12 +20,16 @@ class EngineProject:
         self._config = ProjectConfig.read(self._conf_path)
         self._config.save(self._conf_path)
         self.load_level(self._config.project__default_level)
+    def build_path(self, path):
+        return os.path.join(self.folder, path)
     def load_level(self, path):
         level_path = os.path.join(self.folder, path)
 
         self.level = Level.read(level_path, self)
     def load_mesh(self, mesh, *args):
         mesh_path = os.path.join(self.folder, mesh)
+        if mesh_path.endswith(".grid"):
+            return Grid.from_path(mesh_path, self, *args)
 
         mesh = Mesh.from_args(mesh_path, self, *args)
         return mesh

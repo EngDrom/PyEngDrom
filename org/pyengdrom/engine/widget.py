@@ -5,15 +5,20 @@ from PyQt5.QtWidgets import *
 from OpenGL import GL, GLU
 from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
+from org.pyengdrom.api.controller import AttachedCameraController2D
 from org.pyengdrom.engine.camera import Camera
+from org.pyengdrom.engine.files.texture import Texture
 
 from org.pyengdrom.engine.project import EngineProject
 
 import numpy as np
 import matplotlib.pyplot as plt
+from org.pyengdrom.rice.hitbox.box import CubeHitBox, HitBox
+
+from org.pyengdrom.rice.manager import MOVEMODE_Bijection, MOVEMODE_Component, Manager, Proxy, WorldCollisionManager, run_calculation
 
 class OpenGLEngine(QOpenGLWidget):
-    TRANSLATE_SPEED = 5
+    TRANSLATE_SPEED = 10
     ROTATE_SPEED    = 10
 
     def __init__(self, folder):
@@ -27,10 +32,28 @@ class OpenGLEngine(QOpenGLWidget):
         self.pressed = False
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
+
+        # Temporary
+        self._texture = Texture("./assets/demo/platformer/art_sheet.png")
         
     def initializeGL(self) -> None:
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+        GL.glEnable(GL.GL_BLEND)
+
+        self.world_collision = WorldCollisionManager()
+        self.world_collision.boxes.append(CubeHitBox([-10, -15, -20], [10, -5, 0]))
+        self.physics_managers = []
+        for instance in self._project.level.instances[2:3]:
+            proxy = Proxy(instance, 1000, MOVEMODE_Component | MOVEMODE_Bijection, self.world_collision)
+            self.physics_managers.append(Manager(proxy))
+
         self._context = self.context()
-        self._project.level.initGL(self)
+        self._project.level.initGL(self, self.world_collision)
+        self._texture.initGL()
+        for instance in self._project.level.instances:
+            instance._gl_mesh._texture = self._texture
+        print(self._project.level.instances)
+        self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[2], self.physics_managers[0].proxy)
 
         width  = self.width()
         height = self.height()
@@ -54,9 +77,11 @@ class OpenGLEngine(QOpenGLWidget):
         return self._project.level.getInstanceByTrace(self.trace_calculation[y, x])
     def paintGL(self) -> None:
         self.frame_id += 1
+        run_calculation(self.physics_managers, 1 / 60)
         
         controller = self._project.level.camera_controller
         controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)
+        controller.frame(self.camera)
         
         if self.run_trace_calculation:
             GL.glClearColor(0, 0, 0, 1)

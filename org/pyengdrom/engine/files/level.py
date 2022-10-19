@@ -12,10 +12,13 @@ script:
 '''
 
 import enum
-from org.pyengdrom.api.controller import CameraController2D
+from org.pyengdrom.api.controller import AttachedCameraController2D, CameraController2D
+from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
+from org.pyengdrom.engine.files.texture import AtlasTexture
+from org.pyengdrom.rice.manager import Proxy
 
 class Level:
     LAST_VERSION = "0"
@@ -28,15 +31,16 @@ class Level:
         self.scripts    = []
 
         self.camera_controller = CameraController2D()
-    def initGL(self, widget):
+    def initGL(self, widget, world_collision):
         self.widget = widget
         
         for mesh in self.mesh_types:
-            mesh.initGL(widget)
+            mesh.initGL(widget, world_collision)
         for material in self.materials:
             material.initGL()
         for instance in self.instances:
             instance.initGL(self.mesh_types, self.materials)
+        self.camera_controller = CameraController2D()
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
