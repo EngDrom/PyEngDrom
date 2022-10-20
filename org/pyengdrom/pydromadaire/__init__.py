@@ -1,9 +1,12 @@
 
 from org.pyengdrom.pydromadaire.evaluate.nodes.block import BlockNode
+from org.pyengdrom.pydromadaire.evaluate.stack import VariableStack
 from org.pyengdrom.pydromadaire.lexer.lexer   import Lexer
 from org.pyengdrom.pydromadaire.parser.config import PyDromConfig
 from org.pyengdrom.pydromadaire.parser.cursor import ParserCursor
 from org.pyengdrom.pydromadaire.parser.grammar.rules.block import BlockRule
+
+import pdb
 
 class PyDromLangage:
     conf = PyDromConfig()
@@ -24,3 +27,13 @@ class PyDromLangage:
     @staticmethod
     def run(node : BlockNode):
         node.evaluate(None, True)
+    @staticmethod
+    def run_module(node: BlockNode, data={}):
+        global_stack = VariableStack(None)
+        global_stack.__setitem__("print", print)
+
+        stack = VariableStack(global_stack)
+        for key in data:
+            global_stack[key] = data[key]
+        node.evaluate(stack, False)
+        return stack

@@ -2,6 +2,7 @@
 from typing import List
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.function_node import FunctionBuilderNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.if_node import IfNode
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.import_node import ImportNode
 from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.while_node import WhileNode
 from org.pyengdrom.pydromadaire.lexer.config import AND, B_AND, B_OR, DIVIDE, EQUALS, GREATER, LESS, MINUS, NOT, OR, PLUS, TIMES, XOR
 from org.pyengdrom.pydromadaire.parser.grammar.parserrule import ParserRule
@@ -42,6 +43,10 @@ class PyDromConfig:
                 "/NAME=function/ //NAME/ /LBRACKET/ [//NAME/ [/COMMA/ //NAME/]*] /RBRACKET/ {}",
                 self
             ).link(FunctionBuilderNode),
+            compiler.compile(
+                "/NAME=import/ //NAME/ [/DOT/ //NAME/]*",
+                self
+            ).link(ImportNode),
             ## WARING MUST BE LAST
             compiler.compile("EXPR", self).link(lambda x: x),
         ]

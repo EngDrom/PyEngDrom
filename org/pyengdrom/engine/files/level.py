@@ -12,9 +12,13 @@ script:
 '''
 
 import enum
+from org.pyengdrom.api.controller import AttachedCameraController2D, CameraController2D
+from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.instance import MeshInstance
 
 from org.pyengdrom.engine.files.mesh import Mesh
+from org.pyengdrom.engine.files.texture import AtlasTexture
+from org.pyengdrom.rice.manager import Proxy
 
 class Level:
     LAST_VERSION = "0"
@@ -25,15 +29,18 @@ class Level:
         self.materials  = []
         self.instances  = []
         self.scripts    = []
-    def initGL(self, widget):
+
+        self.camera_controller = CameraController2D()
+    def initGL(self, widget, world_collision):
         self.widget = widget
         
         for mesh in self.mesh_types:
-            mesh.initGL(widget)
+            mesh.initGL(widget, world_collision)
         for material in self.materials:
             material.initGL()
         for instance in self.instances:
             instance.initGL(self.mesh_types, self.materials)
+        self.camera_controller = CameraController2D()
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
@@ -42,7 +49,6 @@ class Level:
             instance.paintBackBuffer()
     def getInstanceByTrace(self, trace):
         for idx, instance in enumerate(self.instances):
-            print(idx, instance.uniqueColor() - trace)
             if (abs(instance.uniqueColor() - trace) <= 10 ** -4 * 2).all():
                 return idx
 
@@ -93,8 +99,11 @@ class Level:
                     line = line[1:-1]
                     level.instances.append(
                         MeshInstance(
-                            *map(lambda x: x.split(", "), line.split(") ("))
+                            project, *map(lambda x: x.split(", "), line.split(") ("))
                         )
                     )
         
+        level.scripts_stack = []
+        for script in level.scripts:
+            level.scripts_stack.append(project.load_script(script))
         return level

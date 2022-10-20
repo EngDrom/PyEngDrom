@@ -34,7 +34,9 @@ class Mesh:
 
         self.indices = []
         self.args    = args
-    def initGL(self, widget):
+
+        self._texture = None
+    def initGL(self, widget, __world_collision):
         self.widget = widget
 
         self._gl_vbos = []
@@ -82,19 +84,26 @@ class Mesh:
 
     def setMatrix(self, matrix, location):
         location = glGetUniformLocation(self.main_shader, location)
+        glUseProgram(self.main_shader)
 
         glUniformMatrix4fv(location, 1, GL_FALSE, matrix)
     def setVec3(self, vec3, location):
         location = glGetUniformLocation(self.main_shader, location)
 
         glUniform3f(location, vec3[0], vec3[1], vec3[2])
-    def paintGL(self, shader, mModel):
+    def paintGL(self, shader, mModel, **kwargs):
         # Init shader and uniform matrices
         self.main_shader = shader.main_shader
 
         self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
         self.setMatrix(self.widget.camera.get_matrix(),    "mView")
         self.setMatrix(mModel,                             "mModel")
+
+        for key in kwargs:
+            self.setMatrix(kwargs[key], key)
+
+        if self._texture is not None:
+            glBindTexture(GL_TEXTURE_2D, self._texture._gl_text)
 
         # Init VAO and VBOs
         glBindVertexArray(self._gl_vao)

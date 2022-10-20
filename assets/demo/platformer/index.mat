@@ -1,0 +1,30 @@
+version: 0
+vertex:
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 tCoord;
+layout (location = 2) in vec2 tCoord2;
+
+uniform mat4 mProj;
+uniform mat4 mView;
+uniform mat4 mModel;
+
+out vec2 _tCoord;
+void main()
+{
+    gl_Position = mProj * mView * mModel * vec4(aPos, 1.0);
+    _tCoord = tCoord;
+}
+fragment:
+#version 330 core
+out vec4 _fragColor;
+uniform mat4 mTCoord;
+in vec2 _tCoord;
+uniform sampler2D _texture;
+void main()
+{
+    vec4 v4_tCoord = mTCoord * vec4(_tCoord, 1, 1);
+    _fragColor = texture(_texture, v4_tCoord.xy);
+
+    if (_fragColor.a < 0.5) discard;
+}

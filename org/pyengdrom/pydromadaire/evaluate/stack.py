@@ -10,7 +10,6 @@ class VariableStack:
         self.__global__  = __global__
     def __getitem__(self, idx):
         assert isinstance(idx, str)
-
         if idx in self.dict: return self.dict[idx] # TODO include heap based system
         if self.__global__ is None: raise  Exception("Could not find variable", idx)
 
@@ -18,7 +17,7 @@ class VariableStack:
         return self.__global__[idx]
     def __setitem__(self, idx, value):
         assert isinstance(idx, str)
-
+        
         if idx in self.global_vars:
             self.__global__.__setitem__(idx, value)
         else:
