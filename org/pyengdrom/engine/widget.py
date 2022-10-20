@@ -6,6 +6,7 @@ from OpenGL import GL, GLU
 from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
 from org.pyengdrom.api.controller import AttachedCameraController2D
+from org.pyengdrom.api.engine import AWAIT_LEVEL_LOADED
 from org.pyengdrom.engine.camera import Camera
 from org.pyengdrom.engine.files.texture import Texture
 
@@ -13,6 +14,7 @@ from org.pyengdrom.engine.project import EngineProject
 
 import numpy as np
 import matplotlib.pyplot as plt
+from org.pyengdrom.pydromadaire.evaluate.nodes.attr import CallFunctionNode
 from org.pyengdrom.rice.hitbox.box import CubeHitBox, HitBox
 
 from org.pyengdrom.rice.manager import MOVEMODE_Bijection, MOVEMODE_Component, Manager, Proxy, WorldCollisionManager, run_calculation
@@ -52,7 +54,7 @@ class OpenGLEngine(QOpenGLWidget):
         self._texture.initGL()
         for instance in self._project.level.instances:
             instance._gl_mesh._texture = self._texture
-        print(self._project.level.instances)
+        
         self._project.level.camera_controller = AttachedCameraController2D(self._project.level.instances[2], self.physics_managers[0].proxy)
 
         width  = self.width()
@@ -63,8 +65,17 @@ class OpenGLEngine(QOpenGLWidget):
         
         self.camera = Camera()
 
+        for stack_data in self._project.level.scripts_stack:
+            if stack_data is not None and stack_data.__global__ is not None and AWAIT_LEVEL_LOADED in stack_data.__global__.dict:
+                for stack, func in stack_data.__global__.dict[AWAIT_LEVEL_LOADED]:
+                    runner = CallFunctionNode(func, (self, ))
+                    
+                    runner.evaluate(stack)
+
         return super().initializeGL()
 
+    def getControllers(self):
+        return [ self._project.level.camera_controller ]
     def addTraceCalculationCallback(self, callback):
         self.callbacks.append(callback)
         self.run_trace_calculation = True

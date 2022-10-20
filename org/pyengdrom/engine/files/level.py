@@ -49,7 +49,6 @@ class Level:
             instance.paintBackBuffer()
     def getInstanceByTrace(self, trace):
         for idx, instance in enumerate(self.instances):
-            print(idx, instance.uniqueColor() - trace)
             if (abs(instance.uniqueColor() - trace) <= 10 ** -4 * 2).all():
                 return idx
 

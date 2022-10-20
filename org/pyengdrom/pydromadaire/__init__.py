@@ -28,10 +28,12 @@ class PyDromLangage:
     def run(node : BlockNode):
         node.evaluate(None, True)
     @staticmethod
-    def run_module(node: BlockNode):
+    def run_module(node: BlockNode, data={}):
         global_stack = VariableStack(None)
         global_stack.__setitem__("print", print)
 
         stack = VariableStack(global_stack)
+        for key in data:
+            global_stack[key] = data[key]
         node.evaluate(stack, False)
         return stack

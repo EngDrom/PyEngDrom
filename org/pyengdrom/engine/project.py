@@ -45,6 +45,5 @@ class EngineProject:
         module = ".".join(".".join(path.split("/")).split("\\"))
         with open(file_path, 'r') as file:
             node = PyDromLangage.compile( file.read(), module )
-            print(node)
-            stack = PyDromLangage.run_module(node)
-            print(stack.global_vars)
+            stack = PyDromLangage.run_module(node, { '$engdrom.project': self })
+            return stack
