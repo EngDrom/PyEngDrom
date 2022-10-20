@@ -33,7 +33,10 @@ class GetAtNode(EvaluatorNode):
         left = self.eval(self.left, stack)
         expr = self.eval(self.expr, stack)
 
-        left[expr] = value
+        try:
+            left[expr] = value
+        except Exception:
+            setattr(left, expr, value)
         return value
 
 class CallFunctionNode(EvaluatorNode):
