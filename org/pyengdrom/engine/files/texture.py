@@ -7,6 +7,21 @@ from OpenGL.GL import *
 
 import matplotlib.pyplot as plt
 
+class TextureManager:
+    built_arrays = {}
+
+    @staticmethod
+    def needs_build (path):
+        print(path)
+        print(TextureManager.built_arrays)
+        return not (path in TextureManager.built_arrays)
+    @staticmethod
+    def get_build(path):
+        return TextureManager.built_arrays[path]
+    @staticmethod
+    def store_build(path, _gl_text):
+        TextureManager.built_arrays[path] = _gl_text
+
 class Texture:
     def __init__(self, path=""):
         self.path = path
@@ -18,6 +33,10 @@ class Texture:
         self.__img = self.get_image()
         return self.__img
     def initGL(self):
+        if not TextureManager.needs_build(self.path):
+            self._gl_text = TextureManager.get_build(self.path)
+            return
+
         img = self.createImage()
 
         img_data = np.array(list(img.getdata()), np.int8)
@@ -35,17 +54,20 @@ class Texture:
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.size[0], img.size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
 
+        TextureManager.store_build(self.path, self._gl_text)
+
 class AtlasTexture(Texture):
-    def __init__(self, path, atlas):
-        super().__init__(path)
+    def __init__(self, project, atlas):
+        super().__init__("")
         self.atlas = []
-        self.make_atlas(atlas)
+        self.make_atlas(project, atlas)
     
-    def make_atlas(self, path):
+    def make_atlas(self, project, path):
         with open(path, 'r') as file:
             lines = file.read().split("\n")
+            self.path = project.build_path( lines[0] )
 
-            for line in lines:
+            for line in lines[1:]:
                 self.make_atlas_line(line)
     def make_atlas_line(self, line):
         w, h, x, y, cx, cy = tuple(map(int, line.split(" ")))

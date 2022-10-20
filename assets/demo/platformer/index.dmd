@@ -15,7 +15,7 @@ function main (engine) {
         if (x > 36) {
             controller.move_enabled = 0
 
-            controller.mesh.matrix.translate(0, 1 / 20, 0)
+            controller.mesh.matrix.translate(0, 1 / 12, 0)
         }
     }
 

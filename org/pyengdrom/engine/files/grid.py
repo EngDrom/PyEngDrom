@@ -57,8 +57,8 @@ class Grid:
 
         for line in lines:
             if line.startswith("atlas: "):
-                _, img, atlas_file = line.split(" ")
-                atlas = AtlasTexture(project.build_path(img), project.build_path(atlas_file))
+                _, atlas_file = line.split(" ")
+                atlas = AtlasTexture(project, project.build_path(atlas_file))
                 grid  = Grid(atlas)
             elif line.startswith("layer-") and line[-1] == ":":
                 state = int(line[6:-1])
@@ -81,10 +81,10 @@ class Grid:
         grid.colliders = colliders
         return grid
 
-    def paintGL(self, shader, mModel):
+    def paintGL(self, shader, mModel, **kwargs):
         for mesh in self.meshes:
             mesh.main_shader = self.main_shader
-            mesh.paintGL(shader, mModel)
+            mesh.paintGL(shader, mModel, **kwargs)
     def initGL(self, widget, world_collision):
         self.atlas.initGL()
         for mesh in self.meshes:

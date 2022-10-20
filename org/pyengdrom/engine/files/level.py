@@ -99,7 +99,7 @@ class Level:
                     line = line[1:-1]
                     level.instances.append(
                         MeshInstance(
-                            *map(lambda x: x.split(", "), line.split(") ("))
+                            project, *map(lambda x: x.split(", "), line.split(") ("))
                         )
                     )
         

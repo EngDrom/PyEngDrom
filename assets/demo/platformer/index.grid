@@ -1,4 +1,4 @@
-atlas: art_sheet.png atlas.atl
+atlas: atlas.atl
 layer-0:
 dx: -9
 dy: -2
