@@ -18,11 +18,13 @@ void main()
 fragment:
 #version 330 core
 out vec4 _fragColor;
+uniform mat4 mTCoord;
 in vec2 _tCoord;
 uniform sampler2D _texture;
 void main()
 {
-    _fragColor = texture(_texture, _tCoord);
+    vec4 v4_tCoord = mTCoord * vec4(_tCoord, 1, 1);
+    _fragColor = texture(_texture, v4_tCoord.xy);
 
     if (_fragColor.a < 0.5) discard;
 }

@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from org.pyengdrom.engine.widget import OpenGLEngine
 from org.pyengdrom.gui.gui.codeeditor import CodeEditor
 from org.pyengdrom.gui.gui.viewport import ViewPortWidget
 from qframelesswindow import FramelessWindow
@@ -75,9 +76,12 @@ class MainWindow(FramelessWindow):
 
 class WidgetManagerLauncher:
     def __init__(self,args):
-        self.app = QApplication(["PyEngDrom"])
-        self.window = MainWindow(args)
+        print(args)
+        self.app = QApplication([])
+        #manager  = WidgetManager(args)
+        self.window = OpenGLEngine(args.folder)
+        self.window.setFixedHeight(500)
+        self.window.setFixedWidth(800)
+
         self.window.show()
-        # add icon
-        self.window.setWindowIcon(QIcon("./assets/editor/icon.png"))
         self.app.exec_()

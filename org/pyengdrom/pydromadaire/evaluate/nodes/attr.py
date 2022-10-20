@@ -1,5 +1,6 @@
 
 
+from org.pyengdrom.pydromadaire.evaluate.nodes.grammar.function_node import StackBasedFunction
 from org.pyengdrom.pydromadaire.evaluate.nodes.node import EvaluatorNode
 from org.pyengdrom.pydromadaire.evaluate.stack import VariableStack
 
@@ -32,7 +33,10 @@ class GetAtNode(EvaluatorNode):
         left = self.eval(self.left, stack)
         expr = self.eval(self.expr, stack)
 
-        left[expr] = value
+        try:
+            left[expr] = value
+        except Exception:
+            setattr(left, expr, value)
         return value
 
 class CallFunctionNode(EvaluatorNode):
@@ -49,7 +53,9 @@ class CallFunctionNode(EvaluatorNode):
     def evaluate(self, stack: "VariableStack"):
         function  = self.eval(self.left, stack)
         arguments = map(lambda u: self.eval(u, stack), self.args)
-
+        
+        if isinstance(function, StackBasedFunction):
+            return function(stack, *arguments)
         return function(*arguments)
 
 class SetNode(EvaluatorNode):

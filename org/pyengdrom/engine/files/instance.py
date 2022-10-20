@@ -1,9 +1,10 @@
 
 
-from org.pyengdrom.engine.camera import ModelMatrix
+from org.pyengdrom.engine.camera import MatrixMaintainer, ModelMatrix
 from org.pyengdrom.engine.files.material import Material
 
 import numpy as np
+from org.pyengdrom.engine.files.texture import AtlasTexture, Texture
 
 from org.pyengdrom.rice.hitbox.box import CubeHitBox, NoHitBox
 
@@ -27,9 +28,31 @@ class MeshInstance:
 
         self._uniqueColor = np.array([r, g, b]) / 256
         return self._uniqueColor
-    def __init__(self, *x):
+    def make_tcoord_matrix(self, dx, dy, x0, y0):
+        print((dx, dy, x0, y0))
+        self.tcoord_matrix = MatrixMaintainer()
+        self.tcoord_matrix.translate(x0, y0, 0)
+        self.tcoord_matrix.scale(dx, dy, 1)
+
+    def __init__(self, project, *x):
         self.mesh = int(x[0][0])
-        self.mat  = tuple(map(int, x[-1]))
+        self.mat, *self.mat_args = x[4]
+        self.mat = [ int(self.mat) ]
+
+        self.make_tcoord_matrix(1, 1, 0, 0)
+
+        self.__texture = None
+        for mat_arg in self.mat_args:
+            if mat_arg.startswith("texture:"):
+                self.__texture = Texture( project.build_path(mat_arg[8:]) )
+            if mat_arg.startswith("atlas:"):
+                _, atlas, coord = mat_arg.split(":")
+
+                self.__texture = AtlasTexture( project, project.build_path(atlas) )
+                [[x0, y1], [x1, _], [_, y0], [_, _]] = self.__texture.coordinates( int(coord) )
+
+                dx, dy = x1 - x0, y1 - y0
+                self.make_tcoord_matrix(- dx, - dy, x0 + dx, y0 + dy)
 
         self.x,  self.y,  self.z  = tuple(map(float, x[1]))
         self.rx, self.ry, self.rz = tuple(map(float, x[2]))
@@ -44,6 +67,9 @@ class MeshInstance:
         self._gl_mesh = meshes[self.mesh]
         self._gl_mat  = tuple(map(lambda x: materials[x], self.mat))
 
+        if self.__texture is not None:
+            self.__texture.initGL()
+
         self.matrix = ModelMatrix()
         self.matrix.translate(self.x,  self.y,  self.z)
         self.matrix.rotate   (self.rx, self.ry, self.rz)
@@ -52,14 +78,14 @@ class MeshInstance:
         if not self.enabled: return
         
         self._gl_mat[0].useGL()
-        self._gl_mesh.paintGL(self._gl_mat[0], self.matrix.get_matrix())
+        self._gl_mesh.paintGL(self._gl_mat[0], self.matrix.get_matrix(), mTCoord=self.tcoord_matrix.get_matrix() )
         self._gl_mat[0].unUseGL()
     def paintBackBuffer(self):
         if not self.enabled: return
 
         Material.get_backbuffer_material().useGL()
-        #print(self.uniqueColor())
         self._gl_mesh.main_shader = Material.get_backbuffer_material().main_shader
+        self._gl_mesh._texture = self.__texture
         self._gl_mesh.setVec3(self.uniqueColor(), "mColor")
 
         self._gl_mesh.paintGL(Material.get_backbuffer_material(), self.matrix.get_matrix())

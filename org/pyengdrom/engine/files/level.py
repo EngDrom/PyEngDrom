@@ -49,7 +49,6 @@ class Level:
             instance.paintBackBuffer()
     def getInstanceByTrace(self, trace):
         for idx, instance in enumerate(self.instances):
-            print(idx, instance.uniqueColor() - trace)
             if (abs(instance.uniqueColor() - trace) <= 10 ** -4 * 2).all():
                 return idx
 
@@ -100,8 +99,11 @@ class Level:
                     line = line[1:-1]
                     level.instances.append(
                         MeshInstance(
-                            *map(lambda x: x.split(", "), line.split(") ("))
+                            project, *map(lambda x: x.split(", "), line.split(") ("))
                         )
                     )
         
+        level.scripts_stack = []
+        for script in level.scripts:
+            level.scripts_stack.append(project.load_script(script))
         return level
