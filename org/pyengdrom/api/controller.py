@@ -31,7 +31,7 @@ class CameraController2D(AbstractCameraController):
         pass
 
 class AttachedCameraController2D(CameraController2D):
-    def __init__(self, mesh, proxy, move_enabled=True, slide_enabled=True):
+    def __init__(self, mesh, proxy, move_enabled=True, slide_enabled=False):
         super().__init__(move_enabled, slide_enabled)
 
         self.mesh = mesh

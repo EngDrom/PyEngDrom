@@ -6,6 +6,7 @@ from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.level import Level
 from org.pyengdrom.engine.files.material import Material
 from org.pyengdrom.engine.files.mesh import Mesh
+from org.pyengdrom.pydromadaire import PyDromLangage
 
 class EngineProject:
     def __init__(self, folder):
@@ -38,3 +39,12 @@ class EngineProject:
 
         mat = Material.from_args(mat_path, self, *args)
         return mat
+    def load_script (self, path, *args):
+        file_path = os.path.join(self.folder, path)
+
+        module = ".".join(".".join(path.split("/")).split("\\"))
+        with open(file_path, 'r') as file:
+            node = PyDromLangage.compile( file.read(), module )
+            print(node)
+            stack = PyDromLangage.run_module(node)
+            print(stack.global_vars)

@@ -13,7 +13,7 @@ class FunctionBuilderNode(EvaluatorNode):
             if not isinstance(arg_name, str):
                 raise Exception("Expected string as function argument")
     def evaluate(self, stack: "VariableStack"):
-        function = FunctionNode(stack.global_vars, self.arg_names, self.func)
+        function = FunctionNode(stack.__global__, self.arg_names, self.func)
         stack.__setitem__(self.name, function)
 
         return function
@@ -25,7 +25,7 @@ class FunctionNode:
         self.arg_names  = arg_names
     def __call__(self, *args):
         if len(args) != len(self.arg_names): raise Exception(f"Expected {len(self.arg_name)} arguments, got {len(args)}")
-
+        
         stack = VariableStack(self.__global__)
         for i in range(len(args)):
             stack.__setitem__(self.arg_names[i], args[i])

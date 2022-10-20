@@ -1,0 +1,7 @@
+
+import engdrom
+
+function frame () {
+    print(5)
+}
+frame()

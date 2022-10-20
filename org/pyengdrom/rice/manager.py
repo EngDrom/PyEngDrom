@@ -7,7 +7,7 @@ class Force:
 
 class Weight(Force):
     def __init__(self, mass):
-        super().__init__(0, - 9.81 * mass, 0)
+        super().__init__(0, - 16 * mass, 0)
 
 
 MOVEMODE_Component = 1

@@ -104,4 +104,7 @@ class Level:
                         )
                     )
         
+        level.scripts_stack = []
+        for script in level.scripts:
+            level.scripts_stack.append(project.load_script(script))
         return level
