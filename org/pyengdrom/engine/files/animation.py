@@ -32,22 +32,32 @@ class AtlasAnimation:
             mode, data = line.split(": ")
             _data = data.split(" ")
 
-            self.modes[mode] = (self.make_interval_array(_data[:-1]), int(_data[-1]))
+            self.modes[mode] = (*self.make_interval_array(_data[:-1]), int(_data[-1]))
+            print(self.modes[mode])
         self.current_mode = "media dx"
         self.current_time = 0
         self.last_pos = np.array([0.0, 0.0, 0.0])
         self.xmode = 0
     def make_interval_array(self, data):
-        array = []
+        array0 = []
+        array1 = None
         for i in data:
+            if i == "cycle":
+                array1 = array0
+                array0 = []
+                continue
+
             if "-" in i:
                 a, b, *jump = i.split("-")
                 jump = 1 if len(jump) != 1 else int(jump[0])
                 
-                array.extend(range(int(a), int(b) + 1, jump))
+                array0.extend(range(int(a), int(b) + 1, jump))
             else:
-                array.append(int(i))
-        return array
+                array0.append(int(i))
+        
+        if array1 is None:
+            return [], array0
+        return array1, array0
 
     def update(self, media, delta_t):
         pos = media.get_position()
@@ -67,7 +77,12 @@ class AtlasAnimation:
             self.current_time = - delta_t * 1000
 
         self.current_time += delta_t * 1000
-        data, sleep = self.modes[self.current_mode]
-        count = (int(self.current_time) // sleep) % len(data)
+        non_cycled, cycled, sleep = self.modes[self.current_mode]
+        count = int(self.current_time) // sleep
         
-        media.make_atlas_tcoord_matrix(data[count], self.xmode)
+        if count < len(non_cycled):
+            media.make_atlas_tcoord_matrix(non_cycled[count], self.xmode)
+            return
+        count -= len(non_cycled)
+        count %= len(cycled)
+        media.make_atlas_tcoord_matrix(cycled[count], self.xmode)
