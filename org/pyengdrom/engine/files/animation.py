@@ -33,7 +33,7 @@ class AtlasAnimation:
             _data = data.split(" ")
 
             self.modes[mode] = (*self.make_interval_array(_data[:-1]), int(_data[-1]))
-            print(self.modes[mode])
+        
         self.current_mode = "media dx"
         self.current_time = 0
         self.last_pos = np.array([0.0, 0.0, 0.0])
