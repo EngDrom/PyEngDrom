@@ -36,7 +36,8 @@ class OpenProject(QWidget):
             self.create_project(path)
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("background:#000000")
+        self.tw, self.tw_object = Tailwind.useGlobalTailwind()
+        self.setStyleSheet("background:#03191E")
         self.layout=QVBoxLayout()
         # create image widget
         self.image=QLabel()
@@ -45,11 +46,12 @@ class OpenProject(QWidget):
         self.image.setAlignment(Qt.AlignCenter)
         # set size
         self.button=QPushButton("Open Project")
-        self.button.setStyleSheet("background:#000000;color:#ffffff")
+        self.tw(self.button, "text-gray-300 bg-theme-700 hover:bg-theme-500 rounded-4 p-4 ml-16 mr-16")
+        #self.button.setStyleSheet("background:#000000;color:#ffffff;height:60px;margin-left:100px;margin-right:100px;QPushButton:hover{background:#2d4e3c}")
         self.button.clicked.connect(self.open_project)
         # create widget with a central button
         self.central=QWidget()
-        self.central.setStyleSheet("background:#000000")
+        self.central.setStyleSheet("background:#03191E")
         self.central_layout=QVBoxLayout()
         self.central_layout.setContentsMargins(0,0,0,0)
         self.central.setLayout(self.central_layout)

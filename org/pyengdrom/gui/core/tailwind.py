@@ -124,6 +124,21 @@ class Tailwind:
     def tailwind_pl(self, string : str):
         string = string.split("-", 1)[1]
         return f"padding-left: {self.to_px(string)};"
+    def tailwind_m(self, string : str):
+        string = string.split("-", 1)[1]
+        return f"margin: {self.to_px(string)};"
+    def tailwind_mt(self, string : str):
+        string = string.split("-", 1)[1]
+        return f"margin-top: {self.to_px(string)};"
+    def tailwind_mb(self, string : str):
+        string = string.split("-", 1)[1]
+        return f"margin-bottom: {self.to_px(string)};"
+    def tailwind_mr(self, string : str):
+        string = string.split("-", 1)[1]
+        return f"margin-right: {self.to_px(string)};"
+    def tailwind_ml(self, string : str):
+        string = string.split("-", 1)[1]
+        return f"margin-left: {self.to_px(string)};"
     
     def try_run(self, method, string: str):
         try:
