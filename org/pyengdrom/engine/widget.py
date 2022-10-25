@@ -18,6 +18,7 @@ class OpenGLEngine(QOpenGLWidget):
 
     def __init__(self, folder):
         super().__init__()
+        self.keys=[False]*4
         self._timer = QTimer()
         self._timer.timeout.connect(self.update)
         self._timer.start(int(1000 / 60))
@@ -28,6 +29,10 @@ class OpenGLEngine(QOpenGLWidget):
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
         
+    def update_move(self):
+        self.move_camera_by_frame[0]=(int(self.keys[2])-int(self.keys[3]))*0.01
+        self.move_camera_by_frame[1]=(int(self.keys[1])-int(self.keys[0]))*0.01
+
     def initializeGL(self) -> None:
         self._context = self.context()
         self._project.level.initGL(self)
@@ -112,16 +117,18 @@ class OpenGLEngine(QOpenGLWidget):
         self.button  = -1
         return super().mouseReleaseEvent(a0)
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
-        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[1] -= 0.01
-        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[1] += 0.01
-        if a0.key() == Qt.Key.Key_Left:  self.move_camera_by_frame[0] += 0.01
-        if a0.key() == Qt.Key.Key_Right: self.move_camera_by_frame[0] -= 0.01
-
+        #print(self.move_camera_by_frame)
+        if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
+        if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True
+        if a0.key() == Qt.Key.Key_Left:  self.keys[2] = True
+        if a0.key() == Qt.Key.Key_Right: self.keys[3] = True
+        self.update_move()
         return super().keyPressEvent(a0)
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
-        if a0.key() == Qt.Key.Key_Up:    self.move_camera_by_frame[1] += 0.01
-        if a0.key() == Qt.Key.Key_Down:  self.move_camera_by_frame[1] -= 0.01
-        if a0.key() == Qt.Key.Key_Left:  self.move_camera_by_frame[0] -= 0.01
-        if a0.key() == Qt.Key.Key_Right: self.move_camera_by_frame[0] += 0.01
-
+        #print("r",self.move_camera_by_frame)
+        if a0.key() == Qt.Key.Key_Up:    self.keys[0] = False
+        if a0.key() == Qt.Key.Key_Down:  self.keys[1] = False
+        if a0.key() == Qt.Key.Key_Left:  self.keys[2] = False
+        if a0.key() == Qt.Key.Key_Right: self.keys[3] = False
+        self.update_move()
         return super().keyReleaseEvent(a0)
