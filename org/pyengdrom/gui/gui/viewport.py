@@ -98,6 +98,13 @@ class ChildList(QListView):
         self.setStyleSheet("background-color: #000000; color: #ffffff;")
 
 class ViewPortWidget(QSplitter):
+    def recompile(self):
+        # delete self.engine
+        self.engine.deleteLater()
+        # create new engine
+        self.engine = OpenGLEngine(self.path)
+        # add engine to hspliter
+        self.hsplitter.addWidget(self.engine)
     def __init__(self,path):
         self.path = path
         super().__init__(Qt.Horizontal)

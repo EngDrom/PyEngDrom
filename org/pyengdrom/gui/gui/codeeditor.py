@@ -36,7 +36,7 @@ class CodeEditor(QWidget):
         # create new onglet
         self.status.showMessage("New file")
         # create new text editor
-        text=TextEditor("")
+        text=TextEditor("",self)
         text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
         self.array.append(text)
         self.onglets.addTab(text, "New file")
@@ -51,7 +51,7 @@ class CodeEditor(QWidget):
             with open(filename, 'r') as f:
                 # create new onglet
                 try:
-                    text=TextEditor(f.read())
+                    text=TextEditor(f.read(),self)
                 except UnicodeDecodeError as e:
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Warning)
@@ -63,7 +63,7 @@ class CodeEditor(QWidget):
                     return
                 text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
                 self.array.append(text)
-                self.onglets.addTab(text, filename)
+                self.onglets.addTab(text, filename.split("/")[-1])
                 self.filenames.append(filename)
                 # add file content to text editor
                 self.status.showMessage("File opened")
@@ -82,7 +82,7 @@ class CodeEditor(QWidget):
             for i in range(self.onglets.count()):
                 self.onglets.removeTab(0)
             self.array=[]
-            text=QTextEdit()
+            text=TextEditor("",self)
             text.setUndoRedoEnabled(True)
             text.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
             self.array.append(text)
@@ -97,6 +97,8 @@ class CodeEditor(QWidget):
             if self.filenames[current_index].endswith("*"):
                 with open(self.filenames[current_index][:-1], 'w') as f:
                     f.write(self.array[current_index].toPlainText())
+                self.onglets.setTabText(self.onglets.currentIndex(), self.filenames[current_index][:-1].split("/")[-1])
+                self.filenames[current_index]=self.filenames[current_index][:-1]
         else:
             self.save_as()
     def save_as(self):
@@ -113,7 +115,7 @@ class CodeEditor(QWidget):
             self.bah()
             return
         #update onglet name
-        self.onglets.setTabText(self.onglets.currentIndex(), filename[0])
+        self.onglets.setTabText(self.onglets.currentIndex(), filename[0].split("/")[-1])
         self.filenames.append(filename[0])
         del self.filenames[current_index]
     def undo(self):
@@ -165,7 +167,7 @@ class CodeEditor(QWidget):
         self.array.pop(index)
         self.filenames.pop(index)
     def changed(self):
-        print(changed)
+        print('changed')
         # get cursor position 
         current_index=self.onglets.currentIndex()
         self.editor=self.array[current_index]
@@ -176,7 +178,7 @@ class CodeEditor(QWidget):
             return
         if self.filenames[current_index].endswith("*"):
             return
-        self.onglets.setTabText(current_index, self.filenames[current_index]+" *")
+        self.onglets.setTabText(current_index, self.filenames[current_index].split("/")[-1]+" *")
         self.filenames[current_index]=self.filenames[current_index]+"*"
     # TODO : regarder doc
     def cursorchanged(self):
@@ -247,7 +249,7 @@ Contact us :
         self.text=TextEditor("""a=3
 b="salut"
 c=1+1
-print(a+b)""")
+print(a+b)""",self)
         #self.text.setReadOnly(True)
         #self.text.setText("Welcome to Engdrom !")
         #self.text.setAlignment(Qt.AlignCenter)
@@ -285,6 +287,12 @@ print(a+b)""")
         self.explorer.setIndentation(20)
         self.explorer.setSortingEnabled(True)
         self.explorer.setStyleSheet("background-color: #2d2d2d; color: #ffffff")
+
+        # only view file names in explorer
+        self.explorer.hideColumn(1)
+        self.explorer.hideColumn(2)
+        self.explorer.hideColumn(3)
+
         # on double click on file, open it
         #connect parent events
         self.explorer.doubleClicked.connect(self.open)

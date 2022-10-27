@@ -22,7 +22,26 @@ from org.pyengdrom.rice.manager import MOVEMODE_Bijection, MOVEMODE_Component, M
 class OpenGLEngine(QOpenGLWidget):
     TRANSLATE_SPEED = 10
     ROTATE_SPEED    = 10
+    #def recompile(self):
+    #    self._project.load_level(self._project._config.project__default_level)
+        # reset every thing
+    #    self.makeCurrent()
+        
+    #    self.doneCurrent()
+        # reset camera position and object position
+        #for stack_data in self._project.level.scripts_stack:
+        #    if stack_data is not None and stack_data.__global__ is not None and AWAIT_LEVEL_LOADED in stack_data.__global__.dict:
+        #        for stack, func in stack_data.__global__.dict[AWAIT_LEVEL_LOADED]:
+        #            runner = CallFunctionNode(func, (self, ))
+                    
+        #            runner.evaluate(stack)
 
+        #self._project.level.initGL(self, self.world_collision)
+        #self._texture.initGL()
+        #for instance in self._project.level.instances:
+        #    instance._gl_mesh._texture = self._texture
+
+        
     def __init__(self, folder):
         super().__init__()
         self.keys=[False]*4

@@ -1,21 +1,18 @@
 
 import engdrom
-
 function main (engine) {
     function frame (controller, camera) {
         xyz = controller.mesh.get_position()
         x = xyz[0]
         y = xyz[1]
         z = xyz[2]
-
         if (y < 3) {
             controller.mesh.matrix.reset_translation()
             controller.mesh.matrix.translate(9, 8, 0)
         }
         if (x > 36) {
             controller.move_enabled = 0
-
-            controller.mesh.matrix.translate(0, 1 / 12, 0)
+            controller.mesh.matrix.translate(0, 1/8,0)
         }
     }
 

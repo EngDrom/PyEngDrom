@@ -9,14 +9,15 @@ class TextEditor(QTextEdit):
             self.init_lexer()
         else:
             super().insertFromMimeData(source)
-    def __init__(self,text):
+    def __init__(self,text,parent):
         super().__init__()
         self.setAcceptRichText(False)
         self.setLineWrapMode(QTextEdit.NoWrap)
         self.setPlainText(text)
         self.text= text
         self.init_lexer()
-        #super().textChanged.connect(self.changed)
+        self.paren=parent
+        super().textChanged.connect(self.changed)
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Tab:
@@ -32,9 +33,7 @@ class TextEditor(QTextEdit):
         return self.text
     #update self.text on textChanged
     def changed(self):
-        #print("text changed",self.var)
-        # check if some text was paste
-        pass
+        self.paren.changed()
         
     def init_lexer(self):
         self.var=False
