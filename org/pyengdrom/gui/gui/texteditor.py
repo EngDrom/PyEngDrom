@@ -16,7 +16,7 @@ class TextEditor(QTextEdit):
         self.setPlainText(text)
         self.text= text
         self.init_lexer()
-        super().textChanged.connect(self.textChanged)
+        #super().textChanged.connect(self.changed)
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Tab:
@@ -31,12 +31,11 @@ class TextEditor(QTextEdit):
     def getText(self):
         return self.text
     #update self.text on textChanged
-    def textChanged(self):
+    def changed(self):
         #print("text changed",self.var)
         # check if some text was paste
-        self.text = self.toPlainText()
-        if self.var:
-            self.update_line(self.toPlainText(),self.textCursor().blockNumber())
+        pass
+        
     def init_lexer(self):
         self.var=False
         try:

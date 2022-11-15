@@ -139,6 +139,6 @@ class ViewPortWidget(QSplitter):
         if a1.type() == a1.Type.KeyRelease: return self.keyReleaseEvent(a1)
         return super().eventFilter(a0, a1)
     def keyPressEvent(self, a0) -> None:
-        self.currentWidget().keyPressEvent(a0)
+        return self.engine.keyPressEvent(a0)
     def keyReleaseEvent(self, a0) -> None:
-        self.currentWidget().keyReleaseEvent(a0)
+        return self.engine.keyReleaseEvent(a0)

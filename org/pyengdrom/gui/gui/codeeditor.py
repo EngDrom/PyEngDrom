@@ -93,6 +93,7 @@ class CodeEditor(QWidget):
         # check if file is already open
         current_index=self.onglets.currentIndex()
         if self.filenames[current_index] is not None:
+            print("saving file as"+self.filenames[current_index])
             if self.filenames[current_index].endswith("*"):
                 with open(self.filenames[current_index][:-1], 'w') as f:
                     f.write(self.array[current_index].toPlainText())
@@ -163,9 +164,13 @@ class CodeEditor(QWidget):
         self.onglets.removeTab(index)
         self.array.pop(index)
         self.filenames.pop(index)
-    def textchanged(self):
+    def changed(self):
+        print(changed)
         # get cursor position 
         current_index=self.onglets.currentIndex()
+        self.editor=self.array[current_index]
+        if self.editor.var:
+            self.editor.update_line(self.editor.toPlainText(),self.editor.textCursor().blockNumber())
         if self.filenames[current_index] is None:
             self.onglets.setTabText(current_index, "New file *")
             return
@@ -255,7 +260,7 @@ print(a+b)""")
         # add logo of EngDrom to the text
         # add margin of 20%
         #self.text.insertHtml("<center><img src='logo.png' width='50' height='50'><br><br><br></center>")
-        #self.text.textChanged.connect(self.textchanged)
+        self.text.textChanged.connect(self.changed)
         #self.text.cursorPositionChanged.connect(self.cursorchanged)
         self.array.append(self.text)
         self.onglets.addTab(self.text, "Welcome to Engdrom")
