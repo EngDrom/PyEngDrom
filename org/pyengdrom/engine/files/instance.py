@@ -80,6 +80,8 @@ class MeshInstance:
         if self.texture is not None:
             self.texture.initGL()
 
+        self.setPos()
+    def setPos(self):
         self.matrix = ModelMatrix()
         self.matrix.translate(self.x,  self.y,  self.z)
         self.matrix.rotate   (self.rx, self.ry, self.rz)
@@ -142,3 +144,6 @@ class MeshInstance:
         matrix = self.matrix.get_matrix()
 
         return matrix[3, :3]
+    
+    def restartGL (self):
+        self.setPos()

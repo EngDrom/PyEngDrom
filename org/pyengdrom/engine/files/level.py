@@ -44,6 +44,9 @@ class Level:
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
+    def restartGL(self):
+        for instance in self.instances:
+            instance.restartGL()
     def paintBackBuffer(self):
         for instance in self.instances:
             instance.paintBackBuffer()
