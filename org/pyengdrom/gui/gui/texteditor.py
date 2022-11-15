@@ -43,7 +43,7 @@ class TextEditor(QTextEdit):
             tokens=[]
             print(e)
         # color every token in blue
-        for i in tokens[:-1]:
+        for idx,i in enumerate(tokens[:-1]):
             # get cursor
             cursor = self.textCursor()
             start=i.pos
@@ -57,15 +57,20 @@ class TextEditor(QTextEdit):
             fmt=QTextCharFormat()
             # check type of token
             if i.get_type() == "NAME":
-                fmt.setForeground(QColor(0,255,255))
+                if i.get_value() in ["for","if","function","while","import"]:
+                    fmt.setForeground(QColor(200,70,48))
+                elif idx!=0 and tokens[idx-1].get_value()=="function":
+                    fmt.setForeground(QColor(221,252,173))
+                else:
+                    fmt.setForeground(QColor(220,237,255))
             elif i.get_type() == "STRING":
-                fmt.setForeground(QColor(255,0,0))
+                fmt.setForeground(QColor(93,162,113))
             elif i.get_type() == "NUMBER":
-                fmt.setForeground(QColor(0,255,0))
+                fmt.setForeground(QColor(148,176,218))
             elif i.get_type() in ["TIMES","DIVIDE","PLUS","MINUS","SET"]:
-                fmt.setForeground(QColor(255,0,255))
+                fmt.setForeground(QColor(225,222,233))
             elif i.get_type() in ["EQUALS","GREATER","LESS","NOT","OR","XOR","AND","VERT_LINE","B_AND","B_OR"]:
-                fmt.setForeground(QColor(199,76,56))
+                fmt.setForeground(QColor(213,207,225))
             else:
                 fmt.setForeground(QColor(255,255,255))
             cursor.mergeCharFormat(fmt)
@@ -90,7 +95,7 @@ class TextEditor(QTextEdit):
             # get position of line begin
             cursor.movePosition(QTextCursor.StartOfLine)
             begin_of_line=cursor.position()
-            for i in tokens[:-1]:
+            for idx,i in enumerate(tokens[:-1]):
                 cursor = self.textCursor()
                 start=begin_of_line+i.pos
                 if i.get_type()!="STRING":
@@ -103,15 +108,20 @@ class TextEditor(QTextEdit):
                 fmt=QTextCharFormat()
                 # check type of token
                 if i.get_type() == "NAME":
-                    fmt.setForeground(QColor(0,255,255))
+                    if i.get_value() in ["for","if","function","while","import"]:
+                        fmt.setForeground(QColor(200,70,48))
+                    elif idx!=0 and tokens[idx-1].get_value()=="function":
+                        fmt.setForeground(QColor(221,252,173))
+                    else:
+                        fmt.setForeground(QColor(220,237,255))
                 elif i.get_type() == "STRING":
-                    fmt.setForeground(QColor(255,0,0))
+                    fmt.setForeground(QColor(93,162,113))
                 elif i.get_type() == "NUMBER":
-                    fmt.setForeground(QColor(0,255,0))
+                    fmt.setForeground(QColor(148,176,218))
                 elif i.get_type() in ["TIMES","DIVIDE","PLUS","MINUS","SET"]:
-                    fmt.setForeground(QColor(255,0,255))
+                    fmt.setForeground(QColor(225,222,233))
                 elif i.get_type() in ["EQUALS","GREATER","LESS","NOT","OR","XOR","AND","VERT_LINE","B_AND","B_OR"]:
-                    fmt.setForeground(QColor(199,76,56))
+                    fmt.setForeground(QColor(213,207,225))
                 else:
                     fmt.setForeground(QColor(255,255,255))
                 cursor.mergeCharFormat(fmt)

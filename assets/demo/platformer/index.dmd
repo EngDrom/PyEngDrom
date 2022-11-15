@@ -1,4 +1,3 @@
-
 import engdrom
 function main (engine) {
     function frame (controller, camera) {
@@ -8,7 +7,7 @@ function main (engine) {
         z = xyz[2]
         if (y < 3) {
             controller.mesh.matrix.reset_translation()
-            controller.mesh.matrix.translate(9, 8, 0)
+            controller.mesh.matrix.translate(9, 6, 0)
         }
         if (x > 36) {
             controller.move_enabled = 0
