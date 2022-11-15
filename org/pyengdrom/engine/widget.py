@@ -88,7 +88,8 @@ class OpenGLEngine(QOpenGLWidget):
         return self._project.level.getInstanceByTrace(self.trace_calculation[y, x])
     def paintGL(self) -> None:
         self.frame_id += 1
-        run_calculation(self.physics_managers, 1 / 60)
+        self.world_collision.boxes = []
+        #run_calculation(self.physics_managers, 1 / 60)
         
         controller = self._project.level.camera_controller
         controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)

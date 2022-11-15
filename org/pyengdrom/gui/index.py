@@ -80,8 +80,8 @@ class WidgetManagerLauncher:
         self.app = QApplication([])
         #manager  = WidgetManager(args)
         self.window = OpenGLEngine(args.folder)
-        self.window.setFixedHeight(500)
-        self.window.setFixedWidth(800)
+        #self.window.setFixedHeight(500)
+        #self.window.setFixedWidth(800)
 
         self.window.show()
         self.app.exec_()
