@@ -98,6 +98,13 @@ class ChildList(QListView):
         self.setStyleSheet("background-color: #000000; color: #ffffff;")
 
 class ViewPortWidget(QSplitter):
+    def recompile(self):
+        # delete self.engine
+        self.engine.deleteLater()
+        # create new engine
+        self.engine = OpenGLEngine(self.path)
+        # add engine to hspliter
+        self.hsplitter.addWidget(self.engine)
     def __init__(self,path):
         self.path = path
         super().__init__(Qt.Horizontal)
@@ -139,6 +146,6 @@ class ViewPortWidget(QSplitter):
         if a1.type() == a1.Type.KeyRelease: return self.keyReleaseEvent(a1)
         return super().eventFilter(a0, a1)
     def keyPressEvent(self, a0) -> None:
-        self.currentWidget().keyPressEvent(a0)
+        return self.engine.keyPressEvent(a0)
     def keyReleaseEvent(self, a0) -> None:
-        self.currentWidget().keyReleaseEvent(a0)
+        return self.engine.keyReleaseEvent(a0)
