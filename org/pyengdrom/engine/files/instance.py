@@ -1,6 +1,7 @@
 
 
 from org.pyengdrom.engine.camera import MatrixMaintainer, ModelMatrix
+from org.pyengdrom.engine.files.animation import Animation
 from org.pyengdrom.engine.files.material import Material
 
 import numpy as np
@@ -29,10 +30,18 @@ class MeshInstance:
         self._uniqueColor = np.array([r, g, b]) / 256
         return self._uniqueColor
     def make_tcoord_matrix(self, dx, dy, x0, y0):
-        print((dx, dy, x0, y0))
         self.tcoord_matrix = MatrixMaintainer()
         self.tcoord_matrix.translate(x0, y0, 0)
         self.tcoord_matrix.scale(dx, dy, 1)
+    def make_atlas_tcoord_matrix(self, coord, xmode=1):
+        self.atlas_tcoord_coord = coord
+        [[x0, y1], [x1, _], [_, y0], [_, _]] = self.texture.coordinates( int( coord ) )
+        
+        dx, dy = x1 - x0, y1 - y0
+        if xmode == 0:
+            self.make_tcoord_matrix(- dx, - dy, x0 + dx, y0 + dy)
+        else:
+            self.make_tcoord_matrix(dx, -dy, x0, y0 + dy)
 
     def __init__(self, project, *x):
         self.mesh = int(x[0][0])
@@ -41,19 +50,20 @@ class MeshInstance:
 
         self.make_tcoord_matrix(1, 1, 0, 0)
 
-        self.__texture = None
+        self.texture = None
+        self.animation = None
         for mat_arg in self.mat_args:
             if mat_arg.startswith("texture:"):
-                self.__texture = Texture( project.build_path(mat_arg[8:]) )
+                self.texture = Texture( project.build_path(mat_arg[8:]) )
             if mat_arg.startswith("atlas:"):
                 _, atlas, coord = mat_arg.split(":")
 
-                self.__texture = AtlasTexture( project, project.build_path(atlas) )
-                [[x0, y1], [x1, _], [_, y0], [_, _]] = self.__texture.coordinates( int(coord) )
+                self.texture = AtlasTexture( project, project.build_path(atlas) )
+                self.make_atlas_tcoord_matrix(int(coord))
+            if mat_arg.startswith("anim:"):
+                _, path = mat_arg.split(":")
 
-                dx, dy = x1 - x0, y1 - y0
-                self.make_tcoord_matrix(- dx, - dy, x0 + dx, y0 + dy)
-
+                self.animation = Animation(project, project.build_path(path))
         self.x,  self.y,  self.z  = tuple(map(float, x[1]))
         self.rx, self.ry, self.rz = tuple(map(float, x[2]))
         self.sx, self.sy, self.sz = tuple(map(float, x[3]))
@@ -67,8 +77,8 @@ class MeshInstance:
         self._gl_mesh = meshes[self.mesh]
         self._gl_mat  = tuple(map(lambda x: materials[x], self.mat))
 
-        if self.__texture is not None:
-            self.__texture.initGL()
+        if self.texture is not None:
+            self.texture.initGL()
 
         self.matrix = ModelMatrix()
         self.matrix.translate(self.x,  self.y,  self.z)
@@ -76,16 +86,19 @@ class MeshInstance:
         self.matrix.scale    (self.sx, self.sy, self.sz)
     def paintGL(self):
         if not self.enabled: return
+        if self.animation is not None: self.animation.update(self)
         
         self._gl_mat[0].useGL()
         self._gl_mesh.paintGL(self._gl_mat[0], self.matrix.get_matrix(), mTCoord=self.tcoord_matrix.get_matrix() )
         self._gl_mat[0].unUseGL()
+    def update(self, delta_t):
+        pass
     def paintBackBuffer(self):
         if not self.enabled: return
 
         Material.get_backbuffer_material().useGL()
         self._gl_mesh.main_shader = Material.get_backbuffer_material().main_shader
-        self._gl_mesh._texture = self.__texture
+        self._gl_mesh._texture = self.texture
         self._gl_mesh.setVec3(self.uniqueColor(), "mColor")
 
         self._gl_mesh.paintGL(Material.get_backbuffer_material(), self.matrix.get_matrix())
