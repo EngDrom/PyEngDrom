@@ -8,7 +8,7 @@ class IdleEditorMode(EditorMode):
         engine._project.level.restartGL()
 
         self.controller = CameraController2D(True, True)
-    def paintGL(self, engine):
+    def startPaintGL(self, engine):
         controller = self.controller
         controller.move(engine.camera, engine.move_camera_by_frame, engine.TRANSLATE_SPEED)
         controller.frame(engine.camera)

@@ -95,9 +95,12 @@ class Mesh:
         # Init shader and uniform matrices
         self.main_shader = shader.main_shader
 
-        self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
-        self.setMatrix(self.widget.camera.get_matrix(),    "mView")
-        self.setMatrix(mModel,                             "mModel")
+        if 'use_proj' not in kwargs or kwargs['use_proj']:
+            self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
+        if self.widget is not None:
+            self.setMatrix(self.widget.camera.get_matrix(),    "mView")
+        if mModel is not None:
+            self.setMatrix(mModel,                             "mModel")
 
         for key in kwargs:
             self.setMatrix(kwargs[key], key)

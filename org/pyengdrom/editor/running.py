@@ -6,7 +6,7 @@ from org.pyengdrom.rice.manager import run_calculation
 class RunningMode(EditorMode):
     def restartGL(self, engine):
         engine._project.level.restartGL()
-    def paintGL(self, engine):
+    def startPaintGL(self, engine):
         run_calculation(engine.physics_managers, 1 / 60)
         
         controller = engine._project.level.camera_controller
