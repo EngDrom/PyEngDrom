@@ -78,6 +78,7 @@ class WidgetManager(QWidget):
 class MainWindow(FramelessWindow):
     def __init__(self,args):
         super().__init__()
+        self.args=args
         self.widget=WidgetManager(args,self)
         self.setTitleBar(CustomTitleBar(self, "#041E26"))
         layout=QHBoxLayout()
@@ -85,10 +86,26 @@ class MainWindow(FramelessWindow):
         layout.setContentsMargins(0, self.titleBar.SIZE , 0, 0)
         # remove spacing between widgets
         layout.setSpacing(0)
+        # add button on the top absolute position
+        self.button=QPushButton("Recompile",self)
+        self.button.setGeometry(0,0,100,30)
+        self.button.clicked.connect(self.recompile)
+        self.button.setStyleSheet("background-color: #041E26; color: white; border: 0px; border-radius: 0px; font-size: 15px; font-weight: bold;")
+        # set button at the bottom left
+        self.button.move(self.width()-50,0)
+        self.button.show()
+        self.button.raise_()
+        self.button.setFlat(True)
+        self.button.setCursor(Qt.PointingHandCursor)
+        self.button.setFixedHeight(30)
+        self.button.setFixedWidth(100)
+        self.button.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
         # set size
         self.resize(800,600)
         self.show()
+    def recompile(self):
+        self.widget.viewport.recompile()
     def addResizeEvent(self, x):
         if not hasattr(self, "resizeEvents"): self.resizeEvents = []
         self.resizeEvents.append(x)
@@ -113,9 +130,12 @@ class WidgetManagerLauncher:
         print(args)
         self.app = QApplication([])
         #manager  = WidgetManager(args)
-        self.window = OpenGLEngine(args.folder)
-        self.window.setFixedHeight(500)
-        self.window.setFixedWidth(800)
+        self.window = MainWindow(args)
+        # set dimensions
+        self.window.resize(800,600)
+        # set name & icon
+        self.window.setWindowTitle("PyEngDrom")
+        self.window.setWindowIcon(QIcon("assets/editor/icon.png"))
 
         self.window.show()
         self.app.exec_()

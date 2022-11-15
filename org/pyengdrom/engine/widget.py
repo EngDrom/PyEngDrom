@@ -23,6 +23,7 @@ class OpenGLEngine(QOpenGLWidget):
     TRANSLATE_SPEED = 10
     ROTATE_SPEED    = 10
 
+        
     def __init__(self, folder):
         super().__init__()
         self.keys=[False]*4
