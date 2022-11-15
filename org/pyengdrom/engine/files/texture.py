@@ -12,8 +12,6 @@ class TextureManager:
 
     @staticmethod
     def needs_build (path):
-        print(path)
-        print(TextureManager.built_arrays)
         return not (path in TextureManager.built_arrays)
     @staticmethod
     def get_build(path):

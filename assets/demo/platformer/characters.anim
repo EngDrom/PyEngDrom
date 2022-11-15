@@ -1,0 +1,5 @@
+atlas.animation
+media: cycle 1 1000
+media dx: cycle 1-17-4 250
+media dy: 17 cycle 21 100
+media dx dy: 17 cycle 21 100
