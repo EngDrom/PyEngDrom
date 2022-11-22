@@ -99,5 +99,5 @@ class EditorGridMode(IdleEditorMode):
         matrix.translate(*-np.reshape(pos, (4))[:3])
 
         self.mesh.main_shader = self.material.main_shader
-        self.mesh.setMatrix( matrix.get_matrix(), "mView" );
+        self.mesh.setMatrix( matrix.get_matrix(), "mView" )
         self.mesh.paintGL(self.material, None)

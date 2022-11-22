@@ -36,8 +36,15 @@ class Mesh:
         self.args    = args
 
         self._texture = None
+    def deleteGL(self):
+        if not (hasattr(self, "_gl_vbos")): return
+        for _gl_vbo in self._gl_vbos:
+            glDeleteBuffers(1, [_gl_vbo])
+        glDeleteVertexArrays(1, [self._gl_vao])
     def initGL(self, widget, __world_collision):
         self.widget = widget
+
+        self.deleteGL()
 
         self._gl_vbos = []
         data_arr_size = []
