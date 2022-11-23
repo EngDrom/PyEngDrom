@@ -10,8 +10,7 @@ SUBDIVISION_SIZE = 16
 
 class GridLayer:
     def modify (self, x, y, new_value):
-        rx, ry = x + self.delta[0], y +  self.delta[1]
-
+        rx, ry = x - self.delta[0], y - self.delta[1]
         px, py = floor(rx / SUBDIVISION_SIZE), floor( ry / SUBDIVISION_SIZE)
         ix, iy = rx - px * SUBDIVISION_SIZE, ry - py * SUBDIVISION_SIZE
         if not px in self.chunks:

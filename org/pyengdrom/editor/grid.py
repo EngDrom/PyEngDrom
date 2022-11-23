@@ -1,10 +1,13 @@
 from org.pyengdrom.editor.base import EditorMode
 from org.pyengdrom.editor.idle import IdleEditorMode
 from org.pyengdrom.engine.camera import MatrixMaintainer
+from org.pyengdrom.engine.files.grid import Grid
 from org.pyengdrom.engine.files.material import Material
 from org.pyengdrom.engine.files.mesh import Mesh
 
 import numpy as np
+from math import floor
+from OpenGL.GL import *
 
 FRAG_TEXT = '''
 #version 330 core
@@ -54,11 +57,19 @@ void main()
 }
 '''
 
+#
+# TODO compute proporition coefficient (GX, GY) from width, height, projection matrix and grid position
+#
+
+GRID_COUNT_Y = 800 / 774 * 8
+GRID_COUNT_X = GRID_COUNT_Y 
+
 class EditorGridMode(IdleEditorMode):
     def __init__(self, grid):
         super().__init__()
 
         self.grid = grid
+        self.atlas_value = 10
 
         self.mesh = Mesh("!")
         self.mesh.vao = [ 3, 2 ]
@@ -98,6 +109,24 @@ class EditorGridMode(IdleEditorMode):
         matrix = MatrixMaintainer()
         matrix.translate(*-np.reshape(pos, (4))[:3])
 
+        self.matrix = matrix
+
         self.mesh.main_shader = self.material.main_shader
+        #self.proj_matrix = glGetDoublev(GL_PROJECTION_MATRIX)
         self.mesh.setMatrix( matrix.get_matrix(), "mView" )
         self.mesh.paintGL(self.material, None)
+    
+    def mouseClick(self, engine, button, x, y):
+        for instance in engine._project.level.instances:
+            if isinstance(engine._project.level.mesh_types[instance.mesh], Grid):
+                self.grid = engine._project.level.mesh_types[instance.mesh]
+                self.grid_pos = instance.x, instance.y, instance.z
+        new_value = -1 if button == 2 else self.atlas_value
+        pos = np.dot(engine.camera.get_matrix().transpose(), np.array([[0], [0], [0], [1]]))
+        y = engine.height() - y
+        gy = GRID_COUNT_Y
+        gx = GRID_COUNT_X * engine.width() / engine.height()
+
+        rx = (x - engine.width()  / 2) / engine.width()  * gx - pos[0][0]
+        ry = (y - engine.height() / 2) / engine.height() * gy - pos[1][0]
+        self.grid.modify(1, floor(rx), floor(ry), new_value)

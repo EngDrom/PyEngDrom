@@ -158,6 +158,8 @@ class OpenGLEngine(QOpenGLWidget):
         
         return super().mouseMoveEvent(a0)
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        if (a0.pos().x(), a0.pos().y()) == self.start_point:
+            self.editor_mode.mouseClick(self, self.button, a0.pos().x(), a0.pos().y())
         self.pressed = False
         self.button  = -1
         return super().mouseReleaseEvent(a0)

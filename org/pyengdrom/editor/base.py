@@ -6,3 +6,5 @@ class EditorMode():
         pass
     def endPaintGL(self, engine):
         pass
+    def mouseClick(self, engine, button, x, y):
+        pass
