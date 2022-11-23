@@ -4,6 +4,7 @@ from math import ceil, floor
 from org.pyengdrom.engine.files.mesh import Mesh
 from org.pyengdrom.engine.files.texture import AtlasTexture
 from org.pyengdrom.rice.hitbox.box import CubeHitBox
+from org.pyengdrom.rice.hitbox.grid import GridLayerHitBox
 from org.pyengdrom.rice.manager import WorldCollisionManager
 
 SUBDIVISION_SIZE = 16
@@ -90,6 +91,7 @@ class GridChunk(Mesh):
 
         self.vao  = [ 3, 2 ]
         self.vbos = [ [], [] ]
+        self.rebuild_collision = True
 
         w, h = self._map.shape
         for dx in range(w):
@@ -106,6 +108,7 @@ class GridChunk(Mesh):
         self.vbos[1] = list(map(float, self.vbos[1]))
         self._texture = atlas
     def modify(self, dx, dy, value):
+        self.rebuild_collision = True
         self._map[dx][dy] = value
         self.vao  = [ 3, 2 ]
         self.vbos = [ [], [] ]
@@ -192,15 +195,7 @@ class Grid:
         self.__collision_ids     = []
 
         for collider_id in self.colliders:
-            for mesh in self.meshes[collider_id].meshes:
-                _map = mesh.vbos[0]
-                
-                for _pid in range(0, len(_map), 12):
-                    min_point = _map[_pid], _map[_pid + 1], -100
-                    _pid += 6
-                    max_point = _map[_pid], _map[_pid + 1], 100
+            world_collision.boxes.append(GridLayerHitBox(self.meshes[collider_id]))
 
-                    self.__collision_ids.append(len(world_collision.boxes))
-                    world_collision.boxes.append(CubeHitBox(min_point, max_point))
     def modify(self, layer, x, y, new_value):
         self.meshes[layer].modify(x, y, new_value)

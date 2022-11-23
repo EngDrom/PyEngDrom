@@ -40,7 +40,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
 
-        self.editor_mode = EditorGridMode(None)
+        self.editor_mode = IdleEditorMode()
 
         # Temporary
         self._texture = Texture("./assets/demo/platformer/art_sheet.png")
@@ -170,6 +170,9 @@ class OpenGLEngine(QOpenGLWidget):
             self.editor_mode__needs_restart = True
         elif a0.key() == ord('P'):
             self.editor_mode = IdleEditorMode()
+            self.editor_mode__needs_restart = True
+        elif a0.key() == ord('G'):
+            self.editor_mode = EditorGridMode(None)
             self.editor_mode__needs_restart = True
         if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
         if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True
