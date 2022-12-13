@@ -36,8 +36,15 @@ class Mesh:
         self.args    = args
 
         self._texture = None
+    def deleteGL(self):
+        if not (hasattr(self, "_gl_vbos")): return
+        for _gl_vbo in self._gl_vbos:
+            glDeleteBuffers(1, [_gl_vbo])
+        glDeleteVertexArrays(1, [self._gl_vao])
     def initGL(self, widget, __world_collision):
         self.widget = widget
+
+        self.deleteGL()
 
         self._gl_vbos = []
         data_arr_size = []
@@ -95,9 +102,12 @@ class Mesh:
         # Init shader and uniform matrices
         self.main_shader = shader.main_shader
 
-        self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
-        self.setMatrix(self.widget.camera.get_matrix(),    "mView")
-        self.setMatrix(mModel,                             "mModel")
+        if 'use_proj' not in kwargs or kwargs['use_proj']:
+            self.setMatrix(glGetDoublev(GL_PROJECTION_MATRIX), "mProj")
+        if self.widget is not None:
+            self.setMatrix(self.widget.camera.get_matrix(),    "mView")
+        if mModel is not None:
+            self.setMatrix(mModel,                             "mModel")
 
         for key in kwargs:
             self.setMatrix(kwargs[key], key)

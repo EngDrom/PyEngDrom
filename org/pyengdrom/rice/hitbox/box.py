@@ -38,7 +38,7 @@ class CubeHitBox:
     def collide(self, box: "HitBox"):
         if isinstance(box, CubeHitBox): return self._collide_cube(box)
 
-        return False
+        return box.collide(self)
 
 class NoHitBox(HitBox):
     def __init__(self): pass

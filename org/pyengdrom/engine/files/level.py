@@ -44,6 +44,9 @@ class Level:
     def paintGL(self):
         for instance in self.instances:
             instance.paintGL()
+    def restartGL(self):
+        for instance in self.instances:
+            instance.restartGL()
     def paintBackBuffer(self):
         for instance in self.instances:
             instance.paintBackBuffer()
@@ -78,6 +81,7 @@ class Level:
         lines = string.split("\n")
         for line in lines:
             line = line.strip()
+            if line == "": continue
             if line[-1] == ":":
                 nmode = line[:-1]
                 if nmode == "mesh"     : mode = ReadMode.MESH

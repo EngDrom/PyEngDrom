@@ -130,12 +130,7 @@ class WidgetManagerLauncher:
         print(args)
         self.app = QApplication([])
         #manager  = WidgetManager(args)
-        self.window = MainWindow(args)
-        # set dimensions
-        self.window.resize(800,600)
-        # set name & icon
-        self.window.setWindowTitle("PyEngDrom")
-        self.window.setWindowIcon(QIcon("assets/editor/icon.png"))
+        self.window = OpenGLEngine(args.folder)
 
         self.window.show()
         self.app.exec_()

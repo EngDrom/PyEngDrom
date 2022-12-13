@@ -7,6 +7,9 @@ from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
 from org.pyengdrom.api.controller import AttachedCameraController2D
 from org.pyengdrom.api.engine import AWAIT_LEVEL_LOADED
+from org.pyengdrom.editor.grid import EditorGridMode
+from org.pyengdrom.editor.idle import IdleEditorMode
+from org.pyengdrom.editor.running import RunningMode
 from org.pyengdrom.engine.camera import Camera
 from org.pyengdrom.engine.files.texture import Texture
 
@@ -36,6 +39,8 @@ class OpenGLEngine(QOpenGLWidget):
         self.pressed = False
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
+
+        self.editor_mode = IdleEditorMode()
 
         # Temporary
         self._texture = Texture("./assets/demo/platformer/art_sheet.png")
@@ -77,6 +82,9 @@ class OpenGLEngine(QOpenGLWidget):
                     runner = CallFunctionNode(func, (self, ))
                     
                     runner.evaluate(stack)
+        
+        self.editor_mode.restartGL(self)
+        self.editor_mode__needs_restart = False
 
         return super().initializeGL()
 
@@ -94,11 +102,10 @@ class OpenGLEngine(QOpenGLWidget):
         return self._project.level.getInstanceByTrace(self.trace_calculation[y, x])
     def paintGL(self) -> None:
         self.frame_id += 1
-        run_calculation(self.physics_managers, 1 / 60)
-        
-        controller = self._project.level.camera_controller
-        controller.move(self.camera, self.move_camera_by_frame, self.TRANSLATE_SPEED)
-        controller.frame(self.camera)
+        if self.editor_mode__needs_restart:
+            self.editor_mode__needs_restart = False
+            self.editor_mode.restartGL(self)
+        self.editor_mode.startPaintGL(self)
         
         if self.run_trace_calculation:
             GL.glClearColor(0, 0, 0, 1)
@@ -118,6 +125,7 @@ class OpenGLEngine(QOpenGLWidget):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         self._project.level.paintGL()
+        self.editor_mode.endPaintGL(self)
     def resizeGL(self, w: int, h: int) -> None:
         self._context = self.context()
         GL.glMatrixMode(GL.GL_PROJECTION)
@@ -146,15 +154,26 @@ class OpenGLEngine(QOpenGLWidget):
         self.last_point = a0.pos().x(), a0.pos().y()
         
         if self.button == 1: 
-            self._project.level.camera_controller.rotate(self.camera, [dx / min(self.width(), self.height()), - dy / min(self.width(), self.height())], self.ROTATE_SPEED)
+            self.editor_mode.rotateGL(self, dx, dy)
         
         return super().mouseMoveEvent(a0)
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        if (a0.pos().x(), a0.pos().y()) == self.start_point:
+            self.editor_mode.mouseClick(self, self.button, a0.pos().x(), a0.pos().y())
         self.pressed = False
         self.button  = -1
         return super().mouseReleaseEvent(a0)
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         #print(self.move_camera_by_frame)
+        if a0.key() == ord('R'):
+            self.editor_mode = RunningMode()
+            self.editor_mode__needs_restart = True
+        elif a0.key() == ord('P'):
+            self.editor_mode = IdleEditorMode()
+            self.editor_mode__needs_restart = True
+        elif a0.key() == ord('G'):
+            self.editor_mode = EditorGridMode(None)
+            self.editor_mode__needs_restart = True
         if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
         if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True
         if a0.key() == Qt.Key.Key_Left:  self.keys[2] = True

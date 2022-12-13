@@ -26,8 +26,7 @@ class Texture:
     def get_image(self):
         return Image.open(self.path).convert('RGBA')
     def createImage(self):
-        if hasattr(self, "__img"): return self.__img
-
+        if hasattr(self, "_Texture__img"): return self.__img
         self.__img = self.get_image()
         return self.__img
     def initGL(self):
@@ -68,6 +67,7 @@ class AtlasTexture(Texture):
             for line in lines[1:]:
                 self.make_atlas_line(line)
     def make_atlas_line(self, line):
+        if line.strip() == "": return
         w, h, x, y, cx, cy = tuple(map(int, line.split(" ")))
         for dx in range(cx):
             for dy in range(cy):
