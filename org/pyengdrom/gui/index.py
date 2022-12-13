@@ -128,9 +128,20 @@ class MainWindow(FramelessWindow):
 class WidgetManagerLauncher:
     def __init__(self,args):
         print(args)
-        self.app = QApplication([])
+        self.app = QApplication(["EngDrom"])
         #manager  = WidgetManager(args)
-        self.window = OpenGLEngine(args.folder)
+        self.window = MainWindow(args)
+        # set dimensions
+        self.window.resize(800,600)
+        # set name & icon
+        self.window.setWindowTitle("PyEngDrom")
+        # set app name
+        self.app.setApplicationName("PyEngDrom")
+        self.window.setWindowIcon(QIcon("assets/editor/icon.png"))
 
         self.window.show()
+        # set app name
+        self.app.setApplicationName("PyEngDrom")
+        # set window name
+        self.app.setWindowIcon(QIcon("assets/editor/icon.png"))
         self.app.exec_()

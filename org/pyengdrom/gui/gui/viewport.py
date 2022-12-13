@@ -2,17 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from org.pyengdrom.engine.widget import OpenGLEngine
+from org.pyengdrom.editor.base import EditorMode
 import os
-
-class Listing(QListView):
-    def __init__(self,content):
-        super().__init__()
-        self.model = QStandardItemModel()
-        for item in content:
-            self.model.appendRow(QStandardItem(item))
-        self.setModel(self.model)
-        # set background color
-        self.setStyleSheet("background-color: #000000; color: #ffffff;")
 
 class Explorer(QListView):
     def __init__(self,path=None):
@@ -121,7 +112,7 @@ class ViewPortWidget(QSplitter):
         self.engine=OpenGLEngine(self.path)
         # create child list
         self.childlist=ChildList(["Test","Test"])
-        self.listing=Listing(["Test","Coucou"])
+        self.listing=EditorMode()
         # add widgets to hspliter
         self.hsplitter.addWidget(self.childlist)
         self.hsplitter.addWidget(self.engine)
