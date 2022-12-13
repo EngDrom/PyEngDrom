@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from OpenGL import GL, GLU
 from PyQt5.QtCore import QTimer, Qt
 import PyQt5.QtGui as QtGui
+import PyQt5.QtCore as QtCore
 from org.pyengdrom.api.controller import AttachedCameraController2D
 from org.pyengdrom.api.engine import AWAIT_LEVEL_LOADED
 from org.pyengdrom.editor.grid import EditorGridMode
@@ -12,6 +13,7 @@ from org.pyengdrom.editor.idle import IdleEditorMode
 from org.pyengdrom.editor.running import RunningMode
 from org.pyengdrom.engine.camera import Camera
 from org.pyengdrom.engine.files.texture import Texture
+from PyQt5.QtWidgets import QApplication
 
 from org.pyengdrom.engine.project import EngineProject
 
@@ -165,6 +167,8 @@ class OpenGLEngine(QOpenGLWidget):
         return super().mouseReleaseEvent(a0)
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         #print(self.move_camera_by_frame)
+        modifiers = QApplication.keyboardModifiers()
+
         if a0.key() == ord('R'):
             self.editor_mode = RunningMode()
             self.editor_mode__needs_restart = True
@@ -174,6 +178,8 @@ class OpenGLEngine(QOpenGLWidget):
         elif a0.key() == ord('G'):
             self.editor_mode = EditorGridMode(None)
             self.editor_mode__needs_restart = True
+        elif a0.key() == ord('S') and (modifiers & QtCore.Qt.ControlModifier):
+            self.editor_mode.save(self)
         if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
         if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True
         if a0.key() == Qt.Key.Key_Left:  self.keys[2] = True

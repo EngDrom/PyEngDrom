@@ -23,6 +23,10 @@ class EngineProject:
         self.load_level(self._config.project__default_level)
     def build_path(self, path):
         return os.path.join(self.folder, path)
+    def unbuild_path (self, path):
+        dirname = os.path.dirname(path)
+        name = os.path.basename(path)
+        return os.path.join(os.path.relpath(self.folder, dirname), name)
     def load_level(self, path):
         level_path = os.path.join(self.folder, path)
 
@@ -30,9 +34,12 @@ class EngineProject:
     def load_mesh(self, mesh, *args):
         mesh_path = os.path.join(self.folder, mesh)
         if mesh_path.endswith(".grid"):
-            return Grid.from_path(mesh_path, self, *args)
+            grid = Grid.from_path(mesh_path, self, *args)
+            grid._Mesh__path = mesh_path
+            return grid
 
         mesh = Mesh.from_args(mesh_path, self, *args)
+        mesh._Mesh__path = mesh_path
         return mesh
     def load_mat(self, mat, *args):
         mat_path = os.path.join(self.folder, mat)
