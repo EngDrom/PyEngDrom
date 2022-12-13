@@ -119,3 +119,10 @@ class EditorMode(QWidget):
         self.grid_label.setMask(self.grid.mask())
         self.atlas_label.setMask(self.atlas.mask())
         self.grid_label.setParent(self.atlas_label)
+
+    def startPaintGL (self, engine):
+        pass
+    def endPaintGL(self, engine):
+        pass
+    def mouseClick(self, engine, button, x, y):
+        pass
