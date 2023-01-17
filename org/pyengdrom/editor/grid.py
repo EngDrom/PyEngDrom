@@ -193,7 +193,14 @@ class EditorGridMode(IdleEditorMode):
 
         rx = (x - engine.width()  / 2) / engine.width()  * gx - pos[0][0]
         ry = (y - engine.height() / 2) / engine.height() * gy - pos[1][0]
-        self._grid.modify(1, floor(rx), floor(ry), new_value)
+        self.grid.modify(1, floor(rx), floor(ry), new_value)
+    def save(self, engine):
+        for instance in engine._project.level.instances:
+            if isinstance(engine._project.level.mesh_types[instance.mesh], Grid):
+                self.grid = engine._project.level.mesh_types[instance.mesh]
+                self.grid_pos = instance.x, instance.y, instance.z
+        
+        self.grid.save()
     def resizeEvent(self,e):
         #print()
         self.atlas=self._atlas.scaled(self._atlas.width()/self._atlas.height()*self.height(),self.height()-35)

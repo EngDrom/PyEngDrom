@@ -11,8 +11,8 @@ class EditorMode(QWidget):
         pass
     def mouseClick(self, engine, button, x, y):
         pass
+    def save (self, engine):
+        pass
     def restartGL(self, engine):
         #self.deleteLater()
         pass
-        
-
