@@ -7,6 +7,8 @@ from org.pyengdrom.rice.hitbox.box import CubeHitBox
 from org.pyengdrom.rice.hitbox.grid import GridLayerHitBox
 from org.pyengdrom.rice.manager import WorldCollisionManager
 
+from io import StringIO
+
 SUBDIVISION_SIZE = 16
 
 class GridLayer:
@@ -14,10 +16,12 @@ class GridLayer:
         rx, ry = x - self.delta[0], y - self.delta[1]
         px, py = floor(rx / SUBDIVISION_SIZE), floor( ry / SUBDIVISION_SIZE)
         ix, iy = rx - px * SUBDIVISION_SIZE, ry - py * SUBDIVISION_SIZE
+
+        px, py = py, px
         if not px in self.chunks:
             self.chunks[px] = {}
         if not py in self.chunks[px]:
-            self.chunks[px][py] = GridChunk(np.array([[ -1 ]]), (self.delta[0] + px * SUBDIVISION_SIZE, self.delta[1] + py * SUBDIVISION_SIZE), self.atlas)
+            self.chunks[px][py] = GridChunk(np.array([[ -1 ]]), (self.delta[0] + py * SUBDIVISION_SIZE, self.delta[1] + px * SUBDIVISION_SIZE), self.atlas)
             self.chunks[px][py].gridlayer_mesh_id = len(self.meshes)
             self.meshes.append(self.chunks[px][py])
         self.chunks[px][py].modify(ix, iy, new_value)
@@ -45,10 +49,22 @@ class GridLayer:
             for j in range(ey)
         }
         self.meshes = []
-        for x in self.chunks:
-            for i in self.chunks[x]:
-                self.chunks[x][i].gridlayer_mesh_id = len(self.meshes)
-                self.meshes.append(self.chunks[x][i])
+        # for x in self.chunks:
+        #     for i in self.chunks[x]:
+        #         self.chunks[x][i].gridlayer_mesh_id = len(self.meshes)
+        #         self.meshes.append(self.chunks[x][i])
+    def createChunk (self, j, i, map):
+        dx = j * SUBDIVISION_SIZE
+        dy = i * SUBDIVISION_SIZE
+
+        chunk = GridChunk(map, (dx + self.delta[0], dy + self.delta[1]), self.atlas)
+
+        if i not in self.chunks: self.chunks[i] = {}
+        self.chunks[i][j] = chunk
+
+        self.chunks[i][j].gridlayer_mesh_id = len(self.meshes)
+        self.meshes.append(chunk)
+        self.needsInit.append(self.meshes[-1])
 
     def paintGL(self, shader, mModel, **kwargs):
         for mesh in self.needsInit:
@@ -68,6 +84,11 @@ class GridLayer:
         for mesh in self.meshes:
             mesh.main_shader = self.main_shader
             mesh.setVec3(color, value)
+    def save(self, buffer):
+        for j in self.chunks:
+            for i in self.chunks[j]:
+                buffer.write(f"chunk-{i}/{j}:\n")
+                self.chunks[j][i].save(buffer)
 
 class GridChunk(Mesh):
     def padding_map (self):
@@ -127,7 +148,13 @@ class GridChunk(Mesh):
                 self.indices.extend([u, u + 1, u + 2, u, u + 3, u + 2])
         self.vbos[0] = list(map(float, self.vbos[0]))
         self.vbos[1] = list(map(float, self.vbos[1]))
-
+    def save(self, buffer):
+        w, h = self._map.shape
+        for dx in range(w):
+            for dy in range(h):
+                buffer.write(str(self._map[dy][dx]))
+                buffer.write(" ")
+            buffer.write("\n")
 class Grid:
     def __init__(self, atlas):
         self.atlas = atlas
@@ -153,7 +180,9 @@ class Grid:
         grid  = None
         colliders = []
 
-        for line in lines:
+        line_index = 0
+        while line_index < len(lines):
+            line = lines[line_index]
             if line.startswith("atlas: "):
                 _, atlas_file = line.split(" ")
                 atlas = AtlasTexture(project, project.build_path(atlas_file))
@@ -168,15 +197,38 @@ class Grid:
                 grid.meshes[state][1][0] = int(line[4:])
             elif line.startswith("dy: ") and state >= 0:
                 grid.meshes[state][1][1] = int(line[4:])
-            else:
-                if state >= 0:
-                    grid.meshes[state][0].append(list(map(int, line.split(" "))))
-                elif state == -2:
-                    colliders.append(int(line))
+            elif line.startswith("chunk-") and line[-1] == ':':
+                if not isinstance(grid.meshes [state], GridLayer):
+                    _map, _delta = grid.meshes[state]
+                    grid.meshes[state] = GridLayer([[-1]], _delta, atlas)
+                
+                mesh = grid.meshes[state]
 
-        for idx in range(len(grid.meshes)):
-            grid.meshes [idx] = GridLayer(grid.meshes[idx][0], grid.meshes[idx][1], atlas)
+                j, i = list(map(int, line[6:-1].split("/")))
+                
+                chunk_map = []
+                line_index += 1
+                for delta in range(16):
+                    words = lines[line_index].split(" ")
+                    chunk_map.append([])
+                    for word_id in range(16):
+                        chunk_map[-1].append(int(words[word_id]))
+
+                    line_index += 1
+                
+                chunk_map = np.rot90(np.flip(np.array(chunk_map), axis=1))
+                line_index -= 1
+
+                grid.meshes[state].createChunk(j, i, chunk_map)
+            elif state == -2 and line.strip() != "":
+                colliders.append(int(line))
+            
+            line_index += 1
+
+        #for idx in range(len(grid.meshes)):
+        #    grid.meshes [idx] = GridLayer(grid.meshes[idx][0], grid.meshes[idx][1], atlas)
         grid.colliders = colliders
+        grid.__project = project
         return grid
 
     def paintGL(self, shader, mModel, **kwargs):
@@ -199,3 +251,18 @@ class Grid:
 
     def modify(self, layer, x, y, new_value):
         self.meshes[layer].modify(x, y, new_value)
+    def save (self):
+        path = self._Mesh__path
+        
+        with open(path, "w") as write_buffer:
+            write_buffer.write(f"atlas: {self.__project.unbuild_path(self.atlas.atlas_path)}\n")
+            
+            for idx, layer in enumerate(self.meshes):
+                write_buffer.write(f"layer-{idx}:\n")
+                write_buffer.write(f"dx: {layer.delta[0]}\ndy: {layer.delta[1]}\n")
+            
+                layer.save(write_buffer)
+            
+            write_buffer.write("collider:\n")
+            for collider in self.colliders:
+                write_buffer.write(f"{collider}\n")
