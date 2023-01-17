@@ -55,6 +55,7 @@ class WidgetManager(QWidget):
         self.right = QShortcut(QKeySequence("Right"),self)
         self.right.activated.connect(self.rightArrow)
 
+
     def leftArrow(self):
         pass
 

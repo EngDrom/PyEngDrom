@@ -9,6 +9,10 @@ import numpy as np
 from math import floor
 from OpenGL.GL import *
 
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+
 FRAG_TEXT = '''
 #version 330 core
 out vec4 _fragColor;
@@ -65,12 +69,21 @@ GRID_COUNT_Y = 800 / 774 * 8
 GRID_COUNT_X = GRID_COUNT_Y 
 
 class EditorGridMode(IdleEditorMode):
-    def __init__(self, grid):
+    def __init__(self, grid,engine):
+        print("init")
         super().__init__()
 
-        self.grid = grid
-        self.atlas_value = 10
-
+        self.project=engine._project
+        for instance in engine._project.level.instances:
+            if isinstance(engine._project.level.mesh_types[instance.mesh], Grid):
+                self._grid = engine._project.level.mesh_types[instance.mesh]
+                self._grid_pos = instance.x, instance.y, instance.z
+        self.atlas_=self._grid.atlas
+        self.sizex,self.sizey=self.atlas_.size()
+        self.w,self.h=self.atlas_.atlas[-1][2:]
+        self.hi=self.sizex//self.h
+        self.wi=self.sizey//self.w
+        #self.atlas_value=-1
         self.mesh = Mesh("!")
         self.mesh.vao = [ 3, 2 ]
         self.mesh.vbos = [
@@ -94,6 +107,56 @@ class EditorGridMode(IdleEditorMode):
 
         self.material.frag = FRAG_TEXT
         self.material.vert = VERT_TEXT
+        super().__init__()
+        self.scroll=QScrollArea()
+        self.selected=[]
+        # show atlas as image
+        atlas_path=self.atlas_.path
+        self._atlas = QPixmap(atlas_path)
+        # create a transparent mask
+        self._mask = self._atlas.createMaskFromColor(QColor(Qt.transparent),Qt.MaskOutColor)
+        self.p=QPainter(self._atlas)
+        self.p.setPen(QColor(255,255,255))
+        self.p.drawPixmap(self._atlas.rect(),self._mask, self._mask.rect())
+        self.p.end()
+        self.atlas = self._atlas.scaled(self._atlas.width()/self._atlas.height()*self.height(),self.height()+38)
+        self.atlas_label = QLabel()
+        self.atlas_label.setPixmap(self.atlas)
+        # set full height
+        self.atlas_label.resize(self._atlas.width()/self._atlas.height()*self.height(),self.height())
+        # superpose a grid of 16*16 tiles on the image
+        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.grid.fill(Qt.transparent)
+        painter = QPainter(self.grid)
+        painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
+        for i in range(0,self.atlas.width(),int(self.atlas.width()/self.wi)):
+            painter.drawLine(i,0,i,self.atlas.height())
+        for i in range(0,self.atlas.height(),int((self.atlas.height()+2)/self.hi)):
+            painter.drawLine(0,i,self.atlas.width(),i)
+        painter.end()
+        # superpose both grid and atlas
+        self.grid_label = QLabel()
+        self.grid_label.setPixmap(self.grid)
+        self.grid_label.resize(self.atlas.width(),self.atlas.height())
+        self.grid_label.move(0,0)
+        self.atlas_label.move(0,0)
+        self.grid_label.setMask(self.grid.mask())
+        self.atlas_label.setMask(self.atlas.mask())
+
+        # add scroll area
+        self.scroll.setWidget(self.atlas_label)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.move(0,0)
+
+        # add grid
+        self.grid_label.setParent(self.atlas_label)
+        self.grid_label.move(0,0)
+
+        # add to layout
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.scroll)
+        self.setLayout(self.layout)
+    
     
     ##################
     # OpenGL related #
@@ -117,10 +180,11 @@ class EditorGridMode(IdleEditorMode):
         self.mesh.paintGL(self.material, None)
     
     def mouseClick(self, engine, button, x, y):
+        print(self.atlas_value)
         for instance in engine._project.level.instances:
             if isinstance(engine._project.level.mesh_types[instance.mesh], Grid):
-                self.grid = engine._project.level.mesh_types[instance.mesh]
-                self.grid_pos = instance.x, instance.y, instance.z
+                self._grid = engine._project.level.mesh_types[instance.mesh]
+                self._grid_pos = instance.x, instance.y, instance.z
         new_value = -1 if button == 2 else self.atlas_value
         pos = np.dot(engine.camera.get_matrix().transpose(), np.array([[0], [0], [0], [1]]))
         y = engine.height() - y
@@ -129,4 +193,78 @@ class EditorGridMode(IdleEditorMode):
 
         rx = (x - engine.width()  / 2) / engine.width()  * gx - pos[0][0]
         ry = (y - engine.height() / 2) / engine.height() * gy - pos[1][0]
-        self.grid.modify(1, floor(rx), floor(ry), new_value)
+        self._grid.modify(1, floor(rx), floor(ry), new_value)
+    def resizeEvent(self,e):
+        #print()
+        self.atlas=self._atlas.scaled(self._atlas.width()/self._atlas.height()*self.height(),self.height()-35)
+        self.atlas_label.resize(self._atlas.width()/self._atlas.height()*self.height(),self.height()-35)
+        self.atlas_label.setPixmap(self.atlas)
+        self.scroll.setWidget(self.atlas_label)
+        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.grid.fill(Qt.transparent)
+        painter = QPainter(self.grid)
+        painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
+        for i in range(0,self.hi):
+            w=i*(self.atlas.width()/self.hi+1)
+            painter.drawLine(w-i,0,w-i,self.atlas.height())
+        for i in range(0,self.wi):
+            h=i*(self.atlas.height()/self.wi+1)
+            painter.drawLine(0,h-i,self.atlas.width(),h-i)
+        painter.end()
+        self.grid_label.setPixmap(self.grid)
+        self.grid_label.resize(self.atlas.width(),self.atlas.height())
+        self.grid_label.move(0,0)
+        self.atlas_label.move(0,0)
+        self.grid_label.setMask(self.grid.mask())
+        self.atlas_label.setMask(self.atlas.mask())
+        self.grid_label.setParent(self.atlas_label)
+        self.grid_label.move(0,0)
+    # get double click event on image
+    def mouseDoubleClickEvent(self,e):
+        # get position on image
+        x=e.pos().x()
+        y=e.pos().y()
+        # get decalage of image
+        dx=self.atlas_label.pos().x()
+        dy=self.atlas_label.pos().y()
+        print(x,y,dx,dy)
+        # get position on grid
+        self.atlas_value=-1
+        print(self.atlas_.atlas)
+        for i in range(len(self.atlas_.atlas)):
+            x1,y1,w1,h1=self.atlas_.atlas[i]
+            if x1<=(x-dx)/(self.atlas.width()/self.hi)*self.w<=x1+w1 and y1<=(y-dy)/(self.atlas.height()/self.wi)*self.h<=y1+h1:
+                self.atlas_value=i
+                break
+        print((x-dx)/(self.atlas.width()/self.hi)*self.w,(y-dy)/(self.atlas.height()/self.wi)*self.h)
+        gx=(x-dx)//(self.atlas.width()/self.hi)
+        gy=(y-dy)//(self.atlas.height()/self.wi)
+        # color the selected tile in yellow with an opacity of 50%
+        if (gx,gy) in self.selected:
+            self.selected.remove((gx,gy))
+        else:
+            self.selected.clear()
+            self.selected.append((gx,gy))
+        # update grid
+        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.grid.fill(Qt.transparent)
+        painter = QPainter(self.grid)
+        painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
+        for i in range(0,self.hi):
+            w=i*(self.atlas.width()/self.hi+1)
+            painter.drawLine(w-i,0,w-i,self.atlas.height())
+        for i in range(0,self.wi):
+            h=i*(self.atlas.height()/self.wi+1)
+            painter.drawLine(0,h-i,self.atlas.width(),h-i)
+        painter.setPen(QPen(QColor(255,255,0,128), 1, Qt.SolidLine))
+        painter.setBrush(QBrush(QColor(255,255,0,128), Qt.SolidPattern))
+        for i in self.selected:
+            painter.drawRect(i[0]*(self.atlas.width()/self.hi),i[1]*(self.atlas.height()/self.wi),self.atlas.width()/self.hi,self.atlas.height()/self.wi)
+        painter.end()
+        self.grid_label.setPixmap(self.grid)
+        self.grid_label.resize(self.atlas.width(),self.atlas.height())
+        #self.grid_label.move(0,0)
+        #self.atlas_label.move(0,0)
+        self.grid_label.setMask(self.grid.mask())
+        self.atlas_label.setMask(self.atlas.mask())
+        self.grid_label.setParent(self.atlas_label)

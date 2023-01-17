@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from org.pyengdrom.engine.widget import OpenGLEngine
-from org.pyengdrom.editor.base import EditorMode
 import os
 
 class Explorer(QListView):
@@ -109,10 +108,9 @@ class ViewPortWidget(QSplitter):
         # create vertical layout
         self.hsplitter=QSplitter(Qt.Horizontal)
         # create viewport
-        self.engine=OpenGLEngine(self.path)
+        self.engine=OpenGLEngine(self.path,self)
         # create child list
         self.childlist=ChildList(["Test","Test"])
-        self.listing=EditorMode()
         # add widgets to hspliter
         self.hsplitter.addWidget(self.childlist)
         self.hsplitter.addWidget(self.engine)
@@ -128,7 +126,7 @@ class ViewPortWidget(QSplitter):
         self.vsplitter.setSizes([700,300])
         # add vspliter to splitter
         self.addWidget(self.vsplitter)
-        self.addWidget(self.listing)
+        self.addWidget(self.engine.editor_mode)
         self.setCollapsible(0,False)
         # set proportions to 70% / 30%
         self.setSizes([700,300])
@@ -140,3 +138,8 @@ class ViewPortWidget(QSplitter):
         return self.engine.keyPressEvent(a0)
     def keyReleaseEvent(self, a0) -> None:
         return self.engine.keyReleaseEvent(a0)
+    def restartGL(self):
+        self.addWidget(self.engine.editor_mode)
+        self.setCollapsible(0,False)
+        # set proportions to 70% / 30%
+        self.setSizes([700,300])
