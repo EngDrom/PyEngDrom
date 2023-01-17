@@ -57,6 +57,7 @@ class AtlasTexture(Texture):
     def __init__(self, project, atlas):
         super().__init__("")
         self.atlas = []
+        self.atlas_path = atlas
         self.make_atlas(project, atlas)
     
     def make_atlas(self, project, path):
