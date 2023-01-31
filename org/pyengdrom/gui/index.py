@@ -88,25 +88,12 @@ class MainWindow(FramelessWindow):
         # remove spacing between widgets
         layout.setSpacing(0)
         # add button on the top absolute position
-        self.button=QPushButton("Recompile",self)
-        self.button.setGeometry(0,0,100,30)
-        self.button.clicked.connect(self.recompile)
-        self.button.setStyleSheet("background-color: #041E26; color: white; border: 0px; border-radius: 0px; font-size: 15px; font-weight: bold;")
-        # set button at the bottom left
-        self.button.move(self.width()-50,0)
-        self.button.show()
-        self.button.raise_()
-        self.button.setFlat(True)
-        self.button.setCursor(Qt.PointingHandCursor)
-        self.button.setFixedHeight(30)
-        self.button.setFixedWidth(100)
-        self.button.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
         # set size
         self.resize(800,600)
         self.show()
-    def recompile(self):
-        self.widget.viewport.recompile()
+    '''def recompile(self):
+        self.widget.viewport.recompile()'''
     def addResizeEvent(self, x):
         if not hasattr(self, "resizeEvents"): self.resizeEvents = []
         self.resizeEvents.append(x)

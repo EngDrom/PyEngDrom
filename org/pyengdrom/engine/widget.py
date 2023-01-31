@@ -183,6 +183,7 @@ class OpenGLEngine(QOpenGLWidget):
             self.editor_mode = self.editor_grid_mode
             self.editor_mode__needs_restart = True
         elif a0.key() == ord('S') and (modifiers & QtCore.Qt.ControlModifier):
+            print('save')
             self.editor_mode.save(self)
         if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
         if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True

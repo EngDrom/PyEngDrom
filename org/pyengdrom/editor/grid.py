@@ -70,15 +70,16 @@ GRID_COUNT_X = GRID_COUNT_Y
 
 class EditorGridMode(IdleEditorMode):
     def __init__(self, grid,engine):
+        self.grid=grid
         print("init")
         super().__init__()
 
         self.project=engine._project
         for instance in engine._project.level.instances:
             if isinstance(engine._project.level.mesh_types[instance.mesh], Grid):
-                self._grid = engine._project.level.mesh_types[instance.mesh]
-                self._grid_pos = instance.x, instance.y, instance.z
-        self.atlas_=self._grid.atlas
+                self.grid = engine._project.level.mesh_types[instance.mesh]
+                self.grid_pos = instance.x, instance.y, instance.z
+        self.atlas_=self.grid.atlas
         self.sizex,self.sizey=self.atlas_.size()
         self.w,self.h=self.atlas_.atlas[-1][2:]
         self.hi=self.sizex//self.h
@@ -125,9 +126,9 @@ class EditorGridMode(IdleEditorMode):
         # set full height
         self.atlas_label.resize(self._atlas.width()/self._atlas.height()*self.height(),self.height())
         # superpose a grid of 16*16 tiles on the image
-        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
-        self.grid.fill(Qt.transparent)
-        painter = QPainter(self.grid)
+        self.atlasgrid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.atlasgrid.fill(Qt.transparent)
+        painter = QPainter(self.atlasgrid)
         painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
         for i in range(0,self.atlas.width(),int(self.atlas.width()/self.wi)):
             painter.drawLine(i,0,i,self.atlas.height())
@@ -136,11 +137,11 @@ class EditorGridMode(IdleEditorMode):
         painter.end()
         # superpose both grid and atlas
         self.grid_label = QLabel()
-        self.grid_label.setPixmap(self.grid)
+        self.grid_label.setPixmap(self.atlasgrid)
         self.grid_label.resize(self.atlas.width(),self.atlas.height())
         self.grid_label.move(0,0)
         self.atlas_label.move(0,0)
-        self.grid_label.setMask(self.grid.mask())
+        self.grid_label.setMask(self.atlasgrid.mask())
         self.atlas_label.setMask(self.atlas.mask())
 
         # add scroll area
@@ -207,9 +208,9 @@ class EditorGridMode(IdleEditorMode):
         self.atlas_label.resize(self._atlas.width()/self._atlas.height()*self.height(),self.height()-35)
         self.atlas_label.setPixmap(self.atlas)
         self.scroll.setWidget(self.atlas_label)
-        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
-        self.grid.fill(Qt.transparent)
-        painter = QPainter(self.grid)
+        self.atlasgrid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.atlasgrid.fill(Qt.transparent)
+        painter = QPainter(self.atlasgrid)
         painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
         for i in range(0,self.hi):
             w=i*(self.atlas.width()/self.hi+1)
@@ -218,11 +219,11 @@ class EditorGridMode(IdleEditorMode):
             h=i*(self.atlas.height()/self.wi+1)
             painter.drawLine(0,h-i,self.atlas.width(),h-i)
         painter.end()
-        self.grid_label.setPixmap(self.grid)
+        self.grid_label.setPixmap(self.atlasgrid)
         self.grid_label.resize(self.atlas.width(),self.atlas.height())
         self.grid_label.move(0,0)
         self.atlas_label.move(0,0)
-        self.grid_label.setMask(self.grid.mask())
+        self.grid_label.setMask(self.atlasgrid.mask())
         self.atlas_label.setMask(self.atlas.mask())
         self.grid_label.setParent(self.atlas_label)
         self.grid_label.move(0,0)
@@ -253,9 +254,9 @@ class EditorGridMode(IdleEditorMode):
             self.selected.clear()
             self.selected.append((gx,gy))
         # update grid
-        self.grid = QPixmap(self.atlas.width(),self.atlas.height())
-        self.grid.fill(Qt.transparent)
-        painter = QPainter(self.grid)
+        self.atlasgrid = QPixmap(self.atlas.width(),self.atlas.height())
+        self.atlasgrid.fill(Qt.transparent)
+        painter = QPainter(self.atlasgrid)
         painter.setPen(QPen(Qt.red, 1, Qt.SolidLine))
         for i in range(0,self.hi):
             w=i*(self.atlas.width()/self.hi+1)
@@ -268,10 +269,10 @@ class EditorGridMode(IdleEditorMode):
         for i in self.selected:
             painter.drawRect(i[0]*(self.atlas.width()/self.hi),i[1]*(self.atlas.height()/self.wi),self.atlas.width()/self.hi,self.atlas.height()/self.wi)
         painter.end()
-        self.grid_label.setPixmap(self.grid)
+        self.grid_label.setPixmap(self.atlasgrid)
         self.grid_label.resize(self.atlas.width(),self.atlas.height())
         #self.grid_label.move(0,0)
         #self.atlas_label.move(0,0)
-        self.grid_label.setMask(self.grid.mask())
+        self.grid_label.setMask(self.atlasgrid.mask())
         self.atlas_label.setMask(self.atlas.mask())
         self.grid_label.setParent(self.atlas_label)
