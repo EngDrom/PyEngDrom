@@ -29,7 +29,7 @@ class OpenGLEngine(QOpenGLWidget):
     ROTATE_SPEED    = 10
 
         
-    def __init__(self, folder):
+    def __init__(self, folder, parent):
         super().__init__()
         self.keys=[False]*4
         self._timer = QTimer()
@@ -41,8 +41,10 @@ class OpenGLEngine(QOpenGLWidget):
         self.pressed = False
         self.move_camera_by_frame = np.array([0.0, 0.0, 0.0])
         self.frame_id = 0
-
         self.editor_mode = IdleEditorMode()
+        self.parent=parent
+        self.editor_grid_mode = EditorGridMode(None,self)
+        self.editor_mode=self.editor_grid_mode
 
         # Temporary
         self._texture = Texture("./assets/demo/platformer/art_sheet.png")
@@ -106,6 +108,7 @@ class OpenGLEngine(QOpenGLWidget):
         self.frame_id += 1
         if self.editor_mode__needs_restart:
             self.editor_mode__needs_restart = False
+            #self.parent.restartGL()
             self.editor_mode.restartGL(self)
         self.editor_mode.startPaintGL(self)
         
@@ -176,9 +179,11 @@ class OpenGLEngine(QOpenGLWidget):
             self.editor_mode = IdleEditorMode()
             self.editor_mode__needs_restart = True
         elif a0.key() == ord('G'):
-            self.editor_mode = EditorGridMode(None)
+            print("Grid mode")
+            self.editor_mode = self.editor_grid_mode
             self.editor_mode__needs_restart = True
         elif a0.key() == ord('S') and (modifiers & QtCore.Qt.ControlModifier):
+            print('save')
             self.editor_mode.save(self)
         if a0.key() == Qt.Key.Key_Up:    self.keys[0] = True
         if a0.key() == Qt.Key.Key_Down:  self.keys[1] = True

@@ -52,6 +52,8 @@ class Texture:
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.size[0], img.size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
 
         TextureManager.store_build(self.path, self._gl_text)
+    def size(self):
+        return self.get_image().size
 
 class AtlasTexture(Texture):
     def __init__(self, project, atlas):
